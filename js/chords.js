@@ -61,7 +61,7 @@ function pickChord() {
 function strumChord(chord) {
   chord.notes.forEach(([name, octave], i) => {
     const freq = noteToFreq([name, octave]);
-    playPluck(freq, { delay: i * 0.05, duration: 1.8, gain: 0.25 });
+    playPluck(freq, { delay: i * 0.05, duration: 1.8, gain: 0.15 });
   });
 }
 

@@ -92,9 +92,9 @@ function playScale() {
 
   notes.forEach((n, i) => {
     const octave = 4 + Math.floor((rootIndex + n.semitones) / 12);
-    playPluck(noteToFreq([n.note, octave]), { delay: i * 0.3, duration: 0.5, gain: 0.25 });
+    playPluck(noteToFreq([n.note, octave]), { delay: i * 0.3, duration: 0.5, gain: 0.15 });
   });
-  playPluck(noteToFreq([scaleRoot, 5]), { delay: notes.length * 0.3, duration: 0.55, gain: 0.25 });
+  playPluck(noteToFreq([scaleRoot, 5]), { delay: notes.length * 0.3, duration: 0.55, gain: 0.15 });
 }
 
 ROOTS.forEach((root) => {

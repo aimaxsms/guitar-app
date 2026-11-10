@@ -133,7 +133,7 @@ function buildHeadstock() {
     g.addEventListener('click', () => {
       focusedIndex = focusedIndex === index ? null : index;
       renderStringLabels();
-      playPluck(noteToFreq(currentTuning.strings[index]), { duration: 1.4, gain: 0.25 });
+      playPluck(noteToFreq(currentTuning.strings[index]), { duration: 1.4, gain: 0.15 });
     });
   });
 }
