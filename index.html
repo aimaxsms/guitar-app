@@ -23,6 +23,7 @@
       <button class="tab-btn" data-tab="library">Chord Library</button>
       <button class="tab-btn" data-tab="theory">Chord Theory</button>
       <button class="tab-btn" data-tab="scales">Scales</button>
+      <button class="tab-btn" data-tab="mayer">John Mayer</button>
     </nav>
 
     <section id="tab-tuner" class="tab-panel panel active">
@@ -163,6 +164,19 @@
 
       <button id="playScaleBtn" class="start-btn secondary-btn">Play Scale</button>
     </section>
+
+    <section id="tab-mayer" class="tab-panel panel mayer-panel">
+      <h1>John Mayer Style Guide</h1>
+
+      <p class="theory-intro">
+        A look at the techniques and vocabulary behind his playing — not transcriptions of his
+        songs, but the building blocks (hybrid picking, chord embellishments, blues phrasing)
+        you can practice and apply to anything you play. Example riffs below are written to
+        demonstrate each technique, not copied from any specific recording.
+      </p>
+
+      <div id="mayerTechniques" class="mayer-techniques"></div>
+    </section>
   </main>
 
   <script src="js/tunings.js"></script>
@@ -179,6 +193,7 @@
   <script src="js/theory.js"></script>
   <script src="js/scale-diagram.js"></script>
   <script src="js/scales.js"></script>
+  <script src="js/mayer.js"></script>
   <script src="js/nav.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

@@ -706,3 +706,51 @@ h1 {
   color: #60a5fa;
   font-weight: 700;
 }
+
+.mayer-panel {
+  justify-content: flex-start;
+}
+
+.mayer-techniques {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+  width: 100%;
+  text-align: left;
+}
+
+.mayer-card {
+  background: linear-gradient(180deg, #1e1e24, #18181d);
+  border: 1px solid #2e2e35;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mayer-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #4ade80;
+}
+
+.mayer-card-desc {
+  font-size: 0.9rem;
+  color: #d1d5db;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.mayer-card-tip {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.mayer-card-listen {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0 0 8px;
+}
