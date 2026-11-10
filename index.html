@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Tuner" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <title>Guitar Tuner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="tuner">Tuner</button>
+      <button class="tab-btn" data-tab="strum">Strum Trainer</button>
+      <button class="tab-btn" data-tab="chords">Chord Game</button>
+      <button class="tab-btn" data-tab="sheets">Chord Sheets</button>
+      <button class="tab-btn" data-tab="library">Chord Library</button>
+      <button class="tab-btn" data-tab="theory">Chord Theory</button>
+      <button class="tab-btn" data-tab="scales">Scales</button>
+    </nav>
+
+    <section id="tab-tuner" class="tab-panel panel active">
+      <h1>Tuner</h1>
+
+      <select id="tuning" class="tuning-select"></select>
+
+      <div class="gauge-row">
+        <div id="barLeft" class="accent-bar"></div>
+        <div class="gauge-wrap">
+          <svg id="gaugeSvg" class="gauge-svg" viewBox="0 0 220 220"></svg>
+        </div>
+        <div id="barRight" class="accent-bar"></div>
+      </div>
+
+      <div id="note" class="note">—</div>
+      <div id="freq" class="freq">0.0 Hz</div>
+      <div id="status" class="status">Tap start and allow microphone access</div>
+
+      <div class="headstock-wrap">
+        <svg id="headstockSvg" class="headstock-svg" viewBox="0 -10 390 570"></svg>
+      </div>
+
+      <button id="start" class="start-btn">Start Tuner</button>
+    </section>
+
+    <section id="tab-strum" class="tab-panel panel">
+      <h1>Strum Trainer</h1>
+
+      <div class="bpm-row">
+        <label for="bpm">Tempo</label>
+        <input type="range" id="bpm" min="40" max="160" value="80" />
+        <span id="bpmValue">80 BPM</span>
+      </div>
+
+      <div id="beatDots" class="beat-dots"></div>
+
+      <div id="hitResult" class="hit-result">—</div>
+      <div id="strumStatus" class="status">Tap Calibrate, then strum along with the clicks</div>
+
+      <div class="score-row">
+        <span id="strumScore">0 / 0 hits</span>
+        <span id="strumAccuracy"></span>
+      </div>
+
+      <div class="btn-row">
+        <button id="calibrateBtn" class="start-btn secondary-btn">Calibrate</button>
+        <button id="strumStartBtn" class="start-btn" disabled>Start</button>
+        <button id="strumStopBtn" class="start-btn secondary-btn" style="display:none;">Stop</button>
+      </div>
+    </section>
+
+    <section id="tab-chords" class="tab-panel panel">
+      <h1>Name That Chord</h1>
+
+      <div id="chordStatus" class="status">Press Play to hear the chord</div>
+
+      <button id="playChordBtn" class="start-btn">Play Chord</button>
+
+      <div id="chordChoices" class="chord-choices"></div>
+
+      <div class="score-row">
+        <span id="chordScore">0 / 0</span>
+      </div>
+
+      <button id="nextChordBtn" class="start-btn secondary-btn" style="display:none;">Next Chord</button>
+    </section>
+
+    <section id="tab-sheets" class="tab-panel panel sheets-panel">
+      <h1>Song Library</h1>
+
+      <select id="sheetSelect" class="tuning-select"></select>
+
+      <div id="songMeta" class="song-meta"></div>
+
+      <div id="viewToggle" class="view-toggle">
+        <button id="lyricsViewBtn" class="view-toggle-btn active">Chords &amp; Lyrics</button>
+        <button id="tabViewBtn" class="view-toggle-btn">Tab</button>
+      </div>
+
+      <div id="sheetContent" class="sheet-content"></div>
+      <div id="tabContent" class="tab-content" style="display:none;"></div>
+
+      <p class="sheet-hint">Tap any chord to see where else it can be played on the fretboard.</p>
+
+      <div id="chordPanel" class="chord-panel">
+        <div class="chord-panel-header">
+          <span id="chordPanelTitle">—</span>
+          <button id="chordPanelClose" class="chord-panel-close">✕</button>
+        </div>
+        <div id="chordPanelDiagrams" class="chord-diagrams"></div>
+      </div>
+    </section>
+
+    <section id="tab-library" class="tab-panel panel library-panel">
+      <h1>Chord Library</h1>
+
+      <div id="libraryRoots" class="library-roots"></div>
+      <div id="libraryQuality" class="library-quality"></div>
+
+      <div id="libraryTitle" class="library-title">C major</div>
+      <div id="libraryDiagrams" class="chord-diagrams"></div>
+    </section>
+
+    <section id="tab-theory" class="tab-panel panel theory-panel">
+      <h1>Chord Theory</h1>
+
+      <p class="theory-intro">
+        A chord is built by stacking specific intervals on top of a root note.
+        A <strong>major</strong> chord is Root + Major 3rd (4 semitones) + Perfect 5th (7 semitones).
+        A <strong>minor</strong> chord is Root + Minor 3rd (3 semitones) + Perfect 5th (7 semitones).
+        The only difference between a major and minor chord with the same root is that one note —
+        the 3rd — moves down a single semitone.
+      </p>
+
+      <div id="theoryRoots" class="library-roots"></div>
+      <div id="theoryQuality" class="library-quality"></div>
+
+      <div id="theoryResult" class="theory-result"></div>
+      <div id="theoryDiagrams" class="chord-diagrams"></div>
+    </section>
+
+    <section id="tab-scales" class="tab-panel panel theory-panel">
+      <h1>Scales</h1>
+
+      <p class="theory-intro">
+        A scale is a set of notes built from a specific pattern of intervals above a root.
+        Pentatonic scales (5 notes) are the easiest to improvise with — minor pentatonic is the
+        backbone of blues and rock soloing. The 7-note scales and modes below shift the mood by
+        changing which notes are flattened or sharpened relative to the major scale.
+      </p>
+
+      <div id="scaleRoots" class="library-roots"></div>
+      <select id="scaleSelect" class="tuning-select"></select>
+
+      <div id="scaleResult" class="theory-result"></div>
+      <div id="scaleDiagram" class="chord-diagrams"></div>
+
+      <button id="playScaleBtn" class="start-btn secondary-btn">Play Scale</button>
+    </section>
+  </main>
+
+  <script src="js/tunings.js"></script>
+  <script src="js/audio-utils.js"></script>
+  <script src="js/headstock-art.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/metronome.js"></script>
+  <script src="js/strum.js"></script>
+  <script src="js/chords.js"></script>
+  <script src="js/chord-shapes.js"></script>
+  <script src="js/chord-diagram.js"></script>
+  <script src="js/sheets.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/theory.js"></script>
+  <script src="js/scale-diagram.js"></script>
+  <script src="js/scales.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
