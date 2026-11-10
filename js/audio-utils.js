@@ -27,7 +27,7 @@ function karplusStrongBuffer(ctx, frequency, duration, damping) {
   return buffer;
 }
 
-function schedulePluck(ctx, frequency, { delay = 0, duration = 1.3, gain = 0.15, damping = 0.996 } = {}) {
+function schedulePluck(ctx, frequency, { delay = 0, duration = 1.3, gain = 0.05, damping = 0.996 } = {}) {
   const startTime = ctx.currentTime + delay;
   const buffer = karplusStrongBuffer(ctx, frequency, duration, damping);
   const source = ctx.createBufferSource();
