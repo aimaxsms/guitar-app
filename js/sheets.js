@@ -75,6 +75,7 @@ const elChordPanelDiagrams = document.getElementById('chordPanelDiagrams');
 const elChordPanelClose = document.getElementById('chordPanelClose');
 
 let viewMode = 'lyrics';
+let currentSongKey = null;
 
 function parseSheetLine(line) {
   const segments = [];
@@ -90,10 +91,56 @@ function parseSheetLine(line) {
   return segments;
 }
 
+function getSongByKey(key) {
+  if (key.startsWith('built-')) {
+    return SONGS[Number(key.slice('built-'.length))];
+  }
+  return getMySongs().find((s) => s.id === key) || null;
+}
+
+function isPersonalKey(key) {
+  return key.startsWith('my-');
+}
+
 function renderMeta(song) {
   const parts = [`Key: ${song.key}`, `Capo: ${song.capo}`, `Tuning: ${song.tuning}`];
   if (song.artist) parts.unshift(song.artist);
-  elSongMeta.textContent = parts.join('  •  ');
+  elSongMeta.innerHTML = '';
+  const metaText = document.createElement('span');
+  metaText.textContent = parts.join('  •  ');
+  elSongMeta.appendChild(metaText);
+
+  if (isPersonalKey(currentSongKey)) {
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'song-meta-btn';
+    renameBtn.textContent = 'Rename';
+    renameBtn.addEventListener('click', renameCurrentSong);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'song-meta-btn';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.addEventListener('click', deleteCurrentSong);
+
+    elSongMeta.appendChild(renameBtn);
+    elSongMeta.appendChild(deleteBtn);
+  }
+}
+
+function renameCurrentSong() {
+  const song = getSongByKey(currentSongKey);
+  if (!song) return;
+  const newTitle = prompt('Rename song:', song.title);
+  if (newTitle === null || !newTitle.trim()) return;
+  updateMySong(song.id, { title: newTitle.trim() });
+  refreshSheetSongOptions(currentSongKey);
+}
+
+function deleteCurrentSong() {
+  const song = getSongByKey(currentSongKey);
+  if (!song) return;
+  if (!confirm(`Delete "${song.title}" from My Songs? This can't be undone.`)) return;
+  deleteMySong(song.id);
+  refreshSheetSongOptions();
 }
 
 function renderSheet(song) {
@@ -163,7 +210,8 @@ elChordPanelClose.addEventListener('click', () => {
 });
 
 elSheetSelect.addEventListener('change', () => {
-  renderSong(SONGS[Number(elSheetSelect.value)]);
+  currentSongKey = elSheetSelect.value;
+  renderSong(getSongByKey(currentSongKey));
   setViewMode('lyrics');
   elChordPanel.classList.remove('open');
 });
@@ -171,12 +219,37 @@ elSheetSelect.addEventListener('change', () => {
 elLyricsViewBtn.addEventListener('click', () => setViewMode('lyrics'));
 elTabViewBtn.addEventListener('click', () => setViewMode('tab'));
 
-SONGS.forEach((song, i) => {
-  const option = document.createElement('option');
-  option.value = String(i);
-  option.textContent = `${song.title} — ${song.artist}`;
-  elSheetSelect.appendChild(option);
-});
+function refreshSheetSongOptions(selectKey) {
+  elSheetSelect.innerHTML = '';
 
-renderSong(SONGS[0]);
-setViewMode('lyrics');
+  const mySongs = getMySongs();
+  if (mySongs.length) {
+    const myGroup = document.createElement('optgroup');
+    myGroup.label = 'My Songs';
+    mySongs.forEach((song) => {
+      const option = document.createElement('option');
+      option.value = song.id;
+      option.textContent = `${song.title} — ${song.artist}`;
+      myGroup.appendChild(option);
+    });
+    elSheetSelect.appendChild(myGroup);
+  }
+
+  const demoGroup = document.createElement('optgroup');
+  demoGroup.label = 'Demo Songs';
+  SONGS.forEach((song, i) => {
+    const option = document.createElement('option');
+    option.value = `built-${i}`;
+    option.textContent = `${song.title} — ${song.artist}`;
+    demoGroup.appendChild(option);
+  });
+  elSheetSelect.appendChild(demoGroup);
+
+  const targetKey = selectKey && getSongByKey(selectKey) ? selectKey : mySongs.length ? mySongs[mySongs.length - 1].id : 'built-0';
+  elSheetSelect.value = targetKey;
+  currentSongKey = targetKey;
+  renderSong(getSongByKey(targetKey));
+  setViewMode('lyrics');
+}
+
+refreshSheetSongOptions('built-0');

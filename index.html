@@ -24,6 +24,7 @@
       <button class="tab-btn" data-tab="theory">Chord Theory</button>
       <button class="tab-btn" data-tab="scales">Scales</button>
       <button class="tab-btn" data-tab="techniques">Techniques</button>
+      <button class="tab-btn" data-tab="songid">Song ID</button>
     </nav>
 
     <section id="tab-tuner" class="tab-panel panel active">
@@ -174,6 +175,27 @@
 
       <div id="techniqueCards" class="technique-cards"></div>
     </section>
+
+    <section id="tab-songid" class="tab-panel panel songid-panel">
+      <h1>Song ID</h1>
+
+      <p class="theory-intro">
+        Listens for about 8 seconds and tries to identify what's playing nearby, using a free
+        third-party recognition service (AudD). The audio clip goes directly from this device to
+        AudD for matching — nothing is stored or sent anywhere else. You'll need your own free
+        API key from <strong>audd.io</strong>.
+      </p>
+
+      <div id="auddKeySetup" class="audd-key-setup">
+        <input type="text" id="auddApiKeyInput" class="tuning-select" placeholder="Paste your AudD API token" />
+        <button id="saveAuddKeyBtn" class="start-btn secondary-btn">Save Key</button>
+      </div>
+
+      <button id="identifyBtn" class="start-btn" disabled>Listen</button>
+      <div id="songIdStatus" class="status">Add your API key above first</div>
+
+      <div id="songIdResult" class="songid-result"></div>
+    </section>
   </main>
 
   <script src="js/tunings.js"></script>
@@ -185,12 +207,14 @@
   <script src="js/chords.js"></script>
   <script src="js/chord-shapes.js"></script>
   <script src="js/chord-diagram.js"></script>
+  <script src="js/mysongs.js"></script>
   <script src="js/sheets.js"></script>
   <script src="js/library.js"></script>
   <script src="js/theory.js"></script>
   <script src="js/scale-diagram.js"></script>
   <script src="js/scales.js"></script>
   <script src="js/techniques.js"></script>
+  <script src="js/songid.js"></script>
   <script src="js/nav.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

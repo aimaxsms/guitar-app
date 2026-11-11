@@ -14,5 +14,6 @@ tabButtons.forEach((btn) => {
 
     if (target !== 'tuner') stopModule('TunerModule');
     if (target !== 'strum') stopModule('StrumModule');
+    if (target !== 'songid') stopModule('SongIdModule');
   });
 });
