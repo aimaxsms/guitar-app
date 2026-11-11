@@ -885,6 +885,22 @@ h1 {
   text-align: center;
 }
 
+.songid-hint {
+  font-size: 0.75rem;
+  color: #868c97;
+  margin: 2px 0 6px;
+  line-height: 1.4;
+}
+
+.live-chord-tab-reference {
+  margin-top: 6px;
+}
+
+.live-chord-tab-mini {
+  font-size: 0.7rem;
+  padding: 6px 8px;
+}
+
 .songid-capo-row {
   display: flex;
   align-items: center;

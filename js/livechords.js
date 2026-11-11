@@ -1,6 +1,6 @@
 // Real-time chord detection via chroma (pitch-class) template matching.
 // Entirely client-side: no recognition service, no API key, no upload.
-// Accuracy is lower than the old AudD path but needs zero backend/cost.
+// Accuracy is lower than a trained ML model but needs zero backend/cost.
 
 const LIVE_CHORD_QUALITIES = {
   major: [0, 4, 7],
@@ -29,6 +29,70 @@ NOTE_NAMES.forEach((root, rootIndex) => {
   });
 });
 
+// --- Key detection: match the detected chord set against every possible key's diatonic chords ---
+const MAJOR_KEY_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+const MAJOR_KEY_QUALITIES = ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished'];
+const MINOR_KEY_INTERVALS = [0, 2, 3, 5, 7, 8, 10];
+const MINOR_KEY_QUALITIES = ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'];
+
+function keyChordSet(root, keyQuality) {
+  const rootIndex = NOTE_NAMES.indexOf(root);
+  const intervals = keyQuality === 'minor' ? MINOR_KEY_INTERVALS : MAJOR_KEY_INTERVALS;
+  const qualities = keyQuality === 'minor' ? MINOR_KEY_QUALITIES : MAJOR_KEY_QUALITIES;
+  const set = new Set();
+  intervals.forEach((interval, i) => {
+    const note = NOTE_NAMES[(rootIndex + interval) % 12];
+    const suffix = qualities[i] === 'minor' ? 'm' : qualities[i] === 'diminished' ? '°' : '';
+    set.add(note + suffix);
+  });
+  return set;
+}
+
+function detectKey(sequence) {
+  if (!sequence.length) return null;
+  const uniqueChords = [...new Set(sequence)];
+  const frequency = {};
+  sequence.forEach((c) => {
+    frequency[c] = (frequency[c] || 0) + 1;
+  });
+  const firstChord = sequence[0];
+
+  const candidates = [];
+  NOTE_NAMES.forEach((root) => {
+    ['major', 'minor'].forEach((keyQuality) => {
+      const chordSet = keyChordSet(root, keyQuality);
+      const matchCount = uniqueChords.filter((c) => chordSet.has(c)).length;
+      candidates.push({ root, keyQuality, matchCount });
+    });
+  });
+
+  const maxMatch = Math.max(...candidates.map((c) => c.matchCount));
+  const top = candidates.filter((c) => c.matchCount === maxMatch);
+
+  function tonicLabel(c) {
+    return c.root + (c.keyQuality === 'minor' ? 'm' : '');
+  }
+  top.sort((a, b) => {
+    const aFirst = tonicLabel(a) === firstChord ? 1 : 0;
+    const bFirst = tonicLabel(b) === firstChord ? 1 : 0;
+    if (aFirst !== bFirst) return bFirst - aFirst;
+    return (frequency[tonicLabel(b)] || 0) - (frequency[tonicLabel(a)] || 0);
+  });
+
+  return top[0];
+}
+
+// --- Strum pattern guess, from onset density (how many strums per chord on average) ---
+function guessStrumPattern(avgStrumsPerChord) {
+  const n = Math.round(avgStrumsPerChord);
+  if (n <= 1) return 'D';
+  if (n === 2) return 'D U';
+  if (n === 3) return 'D DU';
+  if (n === 4) return 'D DU UD';
+  if (n === 5) return 'D DU UDU';
+  return 'D DU UDU DU';
+}
+
 const MIN_FREQ = 70;
 const MAX_FREQ = 1500;
 const ANALYSIS_INTERVAL_MS = 120;
@@ -38,6 +102,11 @@ const SILENCE_FRAMES_THRESHOLD = 15;
 const ENERGY_GATE = 0.001;
 const SCORE_GATE = 0.45;
 const TAB_SKELETON = 'e|\nB|\nG|\nD|\nA|\nE|';
+
+const ONSET_ENERGY_HISTORY = 8;
+const ONSET_TRIGGER_RATIO = 1.4;
+const ONSET_MIN_ENERGY = 0.0005;
+const ONSET_REFRACTORY_SEC = 0.15;
 
 const elLiveChordName = document.getElementById('liveChordName');
 const elLiveChordStatus = document.getElementById('liveChordStatus');
@@ -54,9 +123,21 @@ let liveFreqData = null;
 let liveIntervalId = null;
 
 let detectedSequence = [];
+let lyricSegments = [];
+let currentSegmentIndex = -1;
 let recentGuesses = [];
 let committedChord = null;
 let silenceFrames = 0;
+
+let energyHistory = [];
+let lastOnsetTime = 0;
+let onsetCount = 0;
+let sessionStartTime = 0;
+
+let speechRecognition = null;
+let speechActive = false;
+
+const SPEECH_SUPPORTED = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
 function frequencyToPitchClass(freq) {
   const noteNumber = 12 * Math.log2(freq / 440) + 69;
@@ -108,10 +189,23 @@ function appendChordChip(label) {
   elLiveChordLog.appendChild(chip);
 }
 
+function trackOnset(energy) {
+  const avgEnergy = energyHistory.length ? energyHistory.reduce((a, b) => a + b, 0) / energyHistory.length : 0;
+  const now = liveAudioContext.currentTime;
+  if (energy > ONSET_MIN_ENERGY && energy > avgEnergy * ONSET_TRIGGER_RATIO && now - lastOnsetTime > ONSET_REFRACTORY_SEC) {
+    onsetCount++;
+    lastOnsetTime = now;
+  }
+  energyHistory.push(energy);
+  if (energyHistory.length > ONSET_ENERGY_HISTORY) energyHistory.shift();
+}
+
 function analyzeFrame() {
   liveAnalyser.getFloatFrequencyData(liveFreqData);
   const chroma = computeChroma(liveFreqData, liveAudioContext.sampleRate, liveAnalyser.fftSize);
   const { label, score, energy } = bestChordMatch(chroma);
+
+  trackOnset(energy);
 
   if (!label || energy < ENERGY_GATE || score < SCORE_GATE) {
     silenceFrames++;
@@ -140,9 +234,41 @@ function analyzeFrame() {
     if (topLabel !== committedChord) {
       committedChord = topLabel;
       detectedSequence.push(topLabel);
+      lyricSegments.push('');
+      currentSegmentIndex = lyricSegments.length - 1;
       appendChordChip(topLabel);
     }
   }
+}
+
+function setupSpeechRecognition() {
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SpeechRecognitionCtor();
+  rec.continuous = true;
+  rec.interimResults = false;
+  rec.lang = 'en-US';
+
+  rec.onresult = (event) => {
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (!event.results[i].isFinal) continue;
+      const text = event.results[i][0].transcript.trim();
+      if (text && currentSegmentIndex >= 0 && currentSegmentIndex < lyricSegments.length) {
+        lyricSegments[currentSegmentIndex] = (lyricSegments[currentSegmentIndex] + ' ' + text).trim();
+      }
+    }
+  };
+  rec.onerror = () => {};
+  rec.onend = () => {
+    if (speechActive) {
+      try {
+        rec.start();
+      } catch (err) {
+        // already started or otherwise unavailable - stop trying
+      }
+    }
+  };
+
+  return rec;
 }
 
 async function startLiveChords() {
@@ -167,11 +293,27 @@ async function startLiveChords() {
     liveFreqData = new Float32Array(liveAnalyser.frequencyBinCount);
 
     detectedSequence = [];
+    lyricSegments = [];
+    currentSegmentIndex = -1;
     recentGuesses = [];
     committedChord = null;
     silenceFrames = 0;
+    energyHistory = [];
+    lastOnsetTime = 0;
+    onsetCount = 0;
+    sessionStartTime = liveAudioContext.currentTime;
     elLiveChordLog.innerHTML = '';
     elLiveChordSaveResult.innerHTML = '';
+
+    if (SPEECH_SUPPORTED) {
+      speechActive = true;
+      speechRecognition = setupSpeechRecognition();
+      try {
+        speechRecognition.start();
+      } catch (err) {
+        speechActive = false;
+      }
+    }
 
     elLiveChordStartBtn.style.display = 'none';
     elLiveChordStopBtn.style.display = '';
@@ -188,6 +330,20 @@ function stopLiveChords() {
     clearInterval(liveIntervalId);
     liveIntervalId = null;
   }
+
+  const sessionDuration = liveAudioContext ? liveAudioContext.currentTime - sessionStartTime : 0;
+
+  speechActive = false;
+  if (speechRecognition) {
+    speechRecognition.onend = null;
+    try {
+      speechRecognition.stop();
+    } catch (err) {
+      // already stopped
+    }
+    speechRecognition = null;
+  }
+
   if (liveStream) {
     liveStream.getTracks().forEach((track) => track.stop());
     liveStream = null;
@@ -205,28 +361,66 @@ function stopLiveChords() {
     ? 'Stopped — review and save below'
     : 'Tap Start and play a chord';
 
-  if (detectedSequence.length) renderSaveForm();
+  if (detectedSequence.length) renderSaveForm(sessionDuration);
 }
 
-function buildChordLinesFromSequence(sequence) {
-  const lines = [];
-  for (let i = 0; i < sequence.length; i += 4) {
-    lines.push(
-      sequence
-        .slice(i, i + 4)
-        .map((c) => `[${c}]`)
-        .join(' ')
-    );
-  }
-  return lines;
+function buildChordLyricLines(sequence, segments) {
+  return sequence.map((chord, i) => `[${chord}]${(segments[i] || '').trim()}`.trimEnd());
+}
+
+function buildChordTabSections(sequence) {
+  const seen = new Set();
+  const sections = [];
+  sequence.forEach((chordLabel) => {
+    if (seen.has(chordLabel)) return;
+    seen.add(chordLabel);
+    const parsed = parseChordName(chordLabel);
+    if (!parsed) return;
+    const positions = getChordPositions(parsed.root, parsed.quality);
+    const pos = positions[0];
+    if (!pos) return;
+
+    const stringNames = ['e', 'B', 'G', 'D', 'A', 'E'];
+    const tabLines = pos.frets
+      .map((fret, i) => `${stringNames[i]}|--${fret === 'x' ? 'x' : fret}--`)
+      .join('\n');
+    sections.push({ label: `${chordLabel} (${pos.startFret === 0 ? 'open' : pos.startFret + 'fr'})`, tab: tabLines });
+  });
+  return sections;
 }
 
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-function renderSaveForm() {
-  const prefillLines = buildChordLinesFromSequence(detectedSequence).join('\n');
+function renderSaveForm(sessionDuration) {
+  const prefillLines = buildChordLyricLines(detectedSequence, lyricSegments).join('\n');
+  const detectedKeyInfo = detectKey(detectedSequence);
+  const chordTabSections = buildChordTabSections(detectedSequence);
+  const avgStrumsPerChord = detectedSequence.length ? onsetCount / detectedSequence.length : 0;
+  const strumGuess = guessStrumPattern(avgStrumsPerChord);
+
+  const chordTabsHtml = chordTabSections.length
+    ? `
+      <label class="songid-label">Auto-generated chord shapes (reference, based on the detected progression)</label>
+      <div class="chord-diagrams live-chord-tab-reference">
+        ${chordTabSections
+          .map(
+            (section) => `
+              <div class="diagram-card">
+                <pre class="tab-block live-chord-tab-mini">${section.tab}</pre>
+                <div class="diagram-label">${section.label}</div>
+              </div>
+            `
+          )
+          .join('')}
+      </div>
+    `
+    : '';
+
+  const speechNote = SPEECH_SUPPORTED
+    ? 'Words below were transcribed live with your browser\'s speech recognition — built for speech, not singing, so expect rough accuracy.'
+    : 'Lyric transcription needs Chrome or Edge (not supported in this browser) — add words yourself below if you want.';
 
   elLiveChordSaveResult.innerHTML = `
     <div class="songid-card">
@@ -238,7 +432,7 @@ function renderSaveForm() {
 
       <div class="songid-row">
         <div>
-          <label class="songid-label">Key</label>
+          <label class="songid-label">Key (auto-guessed)</label>
           <select id="liveKey" class="tuning-select"></select>
         </div>
         <div>
@@ -256,13 +450,16 @@ function renderSaveForm() {
       <label class="songid-label">Tuning</label>
       <select id="liveTuning" class="tuning-select"></select>
 
-      <label class="songid-label">Strumming Pattern (e.g. "D DU UDU")</label>
-      <input type="text" id="liveStrumPattern" class="tuning-select" placeholder="D DU UDU" />
+      <label class="songid-label">Strumming Pattern (auto-guessed from strum density — adjust as needed)</label>
+      <input type="text" id="liveStrumPattern" class="tuning-select" value="${escapeHtml(strumGuess)}" />
 
-      <label class="songid-label">Chords &amp; Lyrics (detected progression below — add lyrics alongside each chord if you want)</label>
+      <label class="songid-label">Chords &amp; Lyrics</label>
+      <p class="songid-hint">${speechNote}</p>
       <textarea id="liveLines" class="songid-textarea" rows="6">${prefillLines}</textarea>
 
-      <label class="songid-label">Tab (optional, standard ASCII tab)</label>
+      ${chordTabsHtml}
+
+      <label class="songid-label">Your own tab notes (optional)</label>
       <textarea id="liveTab" class="songid-textarea songid-textarea-mono" rows="7">${TAB_SKELETON}</textarea>
 
       <button id="liveSaveBtn" class="start-btn">Save to My Songs</button>
@@ -276,6 +473,7 @@ function renderSaveForm() {
     option.textContent = root.label;
     elKey.appendChild(option);
   });
+  if (detectedKeyInfo) elKey.value = detectedKeyInfo.root;
 
   const elTuning = document.getElementById('liveTuning');
   Object.entries(TUNINGS).forEach(([group, tunings]) => {
@@ -317,9 +515,12 @@ function renderSaveForm() {
       .value.split('\n')
       .map((line) => line.trim())
       .filter(Boolean);
-    const tabText = document.getElementById('liveTab').value.trim();
-    const hasTabContent = /\d/.test(tabText);
+    const manualTabText = document.getElementById('liveTab').value.trim();
+    const hasManualTab = /\d/.test(manualTabText);
     const strumPattern = document.getElementById('liveStrumPattern').value.trim();
+
+    const tabs = [...chordTabSections];
+    if (hasManualTab) tabs.push({ label: 'Your notes', tab: manualTabText });
 
     const saved = addMySong({
       title: document.getElementById('liveTitle').value.trim() || 'Untitled',
@@ -329,7 +530,7 @@ function renderSaveForm() {
       tuning: elTuning.value,
       strumPattern: strumPattern || null,
       lines: lines.length ? lines : ['(no chords detected)'],
-      tabs: hasTabContent ? [{ label: 'Tab', tab: tabText }] : [],
+      tabs,
     });
 
     elLiveChordSaveResult.innerHTML = `<p class="songid-saved">Saved "${escapeHtml(saved.title)}" to My Songs — find it in the Song Library tab.</p>`;
@@ -339,6 +540,7 @@ function renderSaveForm() {
 
 elLiveChordClearBtn.addEventListener('click', () => {
   detectedSequence = [];
+  lyricSegments = [];
   elLiveChordLog.innerHTML = '';
   elLiveChordSaveResult.innerHTML = '';
 });
