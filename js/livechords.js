@@ -101,6 +101,14 @@ const ENERGY_GATE = 0.001;
 const SCORE_GATE = 0.45;
 const TAB_SKELETON = 'e|\nB|\nG|\nD|\nA|\nE|';
 
+// Spectral flatness tells apart tonal, peaky spectra (a plucked guitar string, which
+// concentrates energy at a handful of sharp harmonic frequencies) from broadband/noisy
+// spectra (drum hits, claps, consonant bursts in speech) and the flatter, formant-shaped
+// spectra of a singing/spoken voice. It's not a substitute for real source separation —
+// it can't perfectly isolate guitar from a voice singing a clean sustained note — but it
+// reliably rejects drums/percussion and meaningfully reduces false triggers from speech.
+const MAX_SPECTRAL_FLATNESS = 0.35;
+
 const ONSET_ENERGY_HISTORY = 8;
 const ONSET_TRIGGER_RATIO = 1.4;
 const ONSET_MIN_ENERGY = 0.0005;
@@ -158,7 +166,45 @@ function computeChroma(freqData, sampleRate, fftSize) {
   return chroma;
 }
 
-function bestChordMatch(chroma) {
+function computeSpectralFlatness(freqData, sampleRate, fftSize) {
+  const binHz = sampleRate / fftSize;
+  const minBin = Math.max(1, Math.floor(MIN_FREQ / binHz));
+  const maxBin = Math.min(freqData.length - 1, Math.ceil(MAX_FREQ / binHz));
+  const eps = 1e-12;
+
+  let logSum = 0;
+  let linSum = 0;
+  let count = 0;
+  for (let i = minBin; i <= maxBin; i++) {
+    const db = freqData[i];
+    const magnitude = db < -100 ? eps : Math.pow(10, db / 20);
+    logSum += Math.log(magnitude + eps);
+    linSum += magnitude;
+    count++;
+  }
+  if (count === 0 || linSum === 0) return 1;
+
+  const geoMean = Math.exp(logSum / count);
+  const arithMean = linSum / count;
+  return geoMean / (arithMean + eps);
+}
+
+function scoreTemplate(template, chroma, chromaNorm) {
+  let dot = 0;
+  for (let i = 0; i < 12; i++) {
+    if (template.vector[i]) dot += chroma[i];
+  }
+  return dot / (chromaNorm * Math.sqrt(template.count));
+}
+
+// How much higher a different chord's score has to be than the chord currently held
+// before we accept it as a real change. Chords that share most of their notes with the
+// current one (G vs Em, G vs G7) naturally score close to each other frame-to-frame as
+// mic noise wobbles slightly — without this margin, that wobble alone flickers the
+// label back and forth even though nothing you're playing has actually changed.
+const HYSTERESIS_MARGIN = 0.08;
+
+function bestChordMatch(chroma, heldLabel) {
   const totalEnergy = chroma.reduce((a, b) => a + b, 0);
   const chromaNorm = Math.sqrt(chroma.reduce((sum, v) => sum + v * v, 0));
   if (totalEnergy < 1e-9 || chromaNorm === 0) return { label: null, score: 0, energy: totalEnergy };
@@ -166,16 +212,22 @@ function bestChordMatch(chroma) {
   let bestLabel = null;
   let bestScore = -Infinity;
   CHORD_TEMPLATES.forEach((template) => {
-    let dot = 0;
-    for (let i = 0; i < 12; i++) {
-      if (template.vector[i]) dot += chroma[i];
-    }
-    const score = dot / (chromaNorm * Math.sqrt(template.count));
+    const score = scoreTemplate(template, chroma, chromaNorm);
     if (score > bestScore) {
       bestScore = score;
       bestLabel = template.label;
     }
   });
+
+  if (heldLabel && heldLabel !== bestLabel) {
+    const heldTemplate = CHORD_TEMPLATES.find((t) => t.label === heldLabel);
+    if (heldTemplate) {
+      const heldScore = scoreTemplate(heldTemplate, chroma, chromaNorm);
+      if (heldScore + HYSTERESIS_MARGIN >= bestScore) {
+        return { label: heldLabel, score: heldScore, energy: totalEnergy };
+      }
+    }
+  }
 
   return { label: bestLabel, score: bestScore, energy: totalEnergy };
 }
@@ -201,11 +253,12 @@ function trackOnset(energy) {
 function analyzeFrame() {
   liveAnalyser.getFloatFrequencyData(liveFreqData);
   const chroma = computeChroma(liveFreqData, liveAudioContext.sampleRate, liveAnalyser.fftSize);
-  const { label, score, energy } = bestChordMatch(chroma);
+  const { label, score, energy } = bestChordMatch(chroma, committedChord);
+  const flatness = computeSpectralFlatness(liveFreqData, liveAudioContext.sampleRate, liveAnalyser.fftSize);
 
   trackOnset(energy);
 
-  if (!label || energy < ENERGY_GATE || score < SCORE_GATE) {
+  if (!label || energy < ENERGY_GATE || score < SCORE_GATE || flatness > MAX_SPECTRAL_FLATNESS) {
     silenceFrames++;
     recentGuesses = [];
     if (silenceFrames > SILENCE_FRAMES_THRESHOLD) {
