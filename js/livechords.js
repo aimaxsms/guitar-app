@@ -2,20 +2,18 @@
 // Entirely client-side: no recognition service, no API key, no upload.
 // Accuracy is lower than a trained ML model but needs zero backend/cost.
 
+// Only major/minor triads — a 7th chord shares 3 of its 4 notes with the plain major/minor
+// version of the same root, so keeping 7th-chord templates around just gives the matcher more
+// near-identical options to confuse. With only major/minor to choose from, a played 7th chord
+// naturally "rounds" to whichever of the two it's actually closest to.
 const LIVE_CHORD_QUALITIES = {
   major: [0, 4, 7],
   minor: [0, 3, 7],
-  dominant7: [0, 4, 7, 10],
-  major7: [0, 4, 7, 11],
-  minor7: [0, 3, 7, 10],
 };
 
 const LIVE_CHORD_SUFFIX = {
   major: '',
   minor: 'm',
-  dominant7: '7',
-  major7: 'maj7',
-  minor7: 'm7',
 };
 
 const CHORD_TEMPLATES = [];
