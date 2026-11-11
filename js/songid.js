@@ -133,6 +133,8 @@ async function identifyBlob(blob, mimeType) {
   }
 }
 
+const TAB_SKELETON = 'e|\nB|\nG|\nD|\nA|\nE|';
+
 function renderSaveForm(result) {
   elSongIdResult.innerHTML = `
     <div class="songid-card">
@@ -149,22 +151,52 @@ function renderSaveForm(result) {
         </div>
         <div>
           <label class="songid-label">Capo</label>
-          <input type="number" id="songIdCapo" class="tuning-select" min="0" max="12" value="0" />
+          <div class="songid-capo-row">
+            <button type="button" id="songIdCapoMinus" class="capo-step-btn">−</button>
+            <span id="songIdCapoDisplay" class="songid-capo-display">No Capo</span>
+            <button type="button" id="songIdCapoPlus" class="capo-step-btn">+</button>
+          </div>
+          <button type="button" id="songIdNoCapoBtn" class="start-btn secondary-btn capo-none-btn">No Capo</button>
+          <input type="hidden" id="songIdCapo" value="0" />
         </div>
       </div>
 
       <label class="songid-label">Tuning</label>
       <select id="songIdTuning" class="tuning-select"></select>
 
+      <label class="songid-label">Strumming Pattern (e.g. "D DU UDU")</label>
+      <input type="text" id="songIdStrumPattern" class="tuning-select" placeholder="D DU UDU" />
+
       <label class="songid-label">Chords &amp; Lyrics (one line per row, e.g. "[G]Walking down the road")</label>
       <textarea id="songIdLines" class="songid-textarea" rows="6" placeholder="[G]Line one here&#10;[D]Line two [Em]here"></textarea>
 
       <label class="songid-label">Tab (optional, standard ASCII tab)</label>
-      <textarea id="songIdTab" class="songid-textarea songid-textarea-mono" rows="6" placeholder="e|---0---2---3---|"></textarea>
+      <textarea id="songIdTab" class="songid-textarea songid-textarea-mono" rows="7">${TAB_SKELETON}</textarea>
 
       <button id="songIdSaveBtn" class="start-btn">Save to My Songs</button>
     </div>
   `;
+
+  let capoValue = 0;
+  const elCapoDisplay = document.getElementById('songIdCapoDisplay');
+  const elCapoHidden = document.getElementById('songIdCapo');
+  function updateCapoDisplay() {
+    elCapoDisplay.textContent = capoValue === 0 ? 'No Capo' : `Capo: Fret ${capoValue}`;
+    elCapoHidden.value = capoValue;
+  }
+  document.getElementById('songIdCapoMinus').addEventListener('click', () => {
+    capoValue = Math.max(0, capoValue - 1);
+    updateCapoDisplay();
+  });
+  document.getElementById('songIdCapoPlus').addEventListener('click', () => {
+    capoValue = Math.min(12, capoValue + 1);
+    updateCapoDisplay();
+  });
+  document.getElementById('songIdNoCapoBtn').addEventListener('click', () => {
+    capoValue = 0;
+    updateCapoDisplay();
+  });
+  updateCapoDisplay();
 
   const elKey = document.getElementById('songIdKey');
   ROOTS.forEach((root) => {
@@ -194,6 +226,8 @@ function renderSaveForm(result) {
       .map((line) => line.trim())
       .filter(Boolean);
     const tabText = document.getElementById('songIdTab').value.trim();
+    const hasTabContent = /\d/.test(tabText);
+    const strumPattern = document.getElementById('songIdStrumPattern').value.trim();
 
     const saved = addMySong({
       title: document.getElementById('songIdTitle').value.trim() || 'Untitled',
@@ -201,8 +235,9 @@ function renderSaveForm(result) {
       key: elKey.value,
       capo: Number(document.getElementById('songIdCapo').value) || 0,
       tuning: elTuning.value,
+      strumPattern: strumPattern || null,
       lines: lines.length ? lines : ['(no chords entered yet)'],
-      tabs: tabText ? [{ label: 'Tab', tab: tabText }] : [],
+      tabs: hasTabContent ? [{ label: 'Tab', tab: tabText }] : [],
     });
 
     elSongIdResult.innerHTML = `<p class="songid-saved">Saved "${escapeHtml(saved.title)}" to My Songs — find it in the Song Library tab.</p>`;

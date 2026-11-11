@@ -103,7 +103,9 @@ function isPersonalKey(key) {
 }
 
 function renderMeta(song) {
-  const parts = [`Key: ${song.key}`, `Capo: ${song.capo}`, `Tuning: ${song.tuning}`];
+  const capoText = song.capo ? `Capo: Fret ${song.capo}` : 'No Capo';
+  const parts = [`Key: ${song.key}`, capoText, `Tuning: ${song.tuning}`];
+  if (song.strumPattern) parts.push(`Strum: ${song.strumPattern}`);
   if (song.artist) parts.unshift(song.artist);
   elSongMeta.innerHTML = '';
   const metaText = document.createElement('span');

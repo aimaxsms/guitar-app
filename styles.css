@@ -878,3 +878,41 @@ h1 {
   font-size: 0.9rem;
   text-align: center;
 }
+
+.songid-capo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.capo-step-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f5f5f5;
+  background: #1e1e24;
+  border: 1px solid #2e2e35;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.capo-step-btn:active {
+  background: #2a2a30;
+}
+
+.songid-capo-display {
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.capo-none-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.8rem;
+  margin-top: 0;
+}
