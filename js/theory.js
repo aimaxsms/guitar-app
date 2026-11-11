@@ -39,6 +39,48 @@ function renderSemitoneStrip(root, quality) {
   return html;
 }
 
+const MAJOR_KEY_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+const MAJOR_KEY_QUALITIES = ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished'];
+const MAJOR_KEY_NUMERALS = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+
+const MINOR_KEY_INTERVALS = [0, 2, 3, 5, 7, 8, 10];
+const MINOR_KEY_QUALITIES = ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'];
+const MINOR_KEY_NUMERALS = ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
+
+function getKeyChords(root, quality) {
+  const rootIndex = NOTE_NAMES.indexOf(root);
+  const intervals = quality === 'minor' ? MINOR_KEY_INTERVALS : MAJOR_KEY_INTERVALS;
+  const qualities = quality === 'minor' ? MINOR_KEY_QUALITIES : MAJOR_KEY_QUALITIES;
+  const numerals = quality === 'minor' ? MINOR_KEY_NUMERALS : MAJOR_KEY_NUMERALS;
+
+  return intervals.map((interval, i) => {
+    const note = NOTE_NAMES[(rootIndex + interval) % 12];
+    const chordQuality = qualities[i];
+    const suffix = chordQuality === 'minor' ? 'm' : chordQuality === 'diminished' ? '°' : '';
+    return { numeral: numerals[i], note, quality: chordQuality, name: note + suffix };
+  });
+}
+
+function renderKeyInfo() {
+  const chords = getKeyChords(theoryRoot, theoryQuality);
+  const elKeyInfo = document.getElementById('keyInfo');
+  elKeyInfo.innerHTML = `
+    <div class="library-title">Key of ${theoryRoot} ${theoryQuality}</div>
+    <div class="key-chords-row">
+      ${chords
+        .map(
+          (c) => `
+            <div class="key-chord-card key-chord-${c.quality}">
+              <div class="key-chord-numeral">${c.numeral}</div>
+              <div class="key-chord-name">${c.name}</div>
+            </div>
+          `
+        )
+        .join('')}
+    </div>
+  `;
+}
+
 function renderTheory() {
   const tones = getChordTones(theoryRoot, theoryQuality);
 
@@ -63,6 +105,8 @@ function renderTheory() {
 
   const chordLabel = theoryQuality === 'minor' ? `${theoryRoot}m` : theoryRoot;
   renderChordDiagrams(elTheoryDiagrams, chordLabel, { labelMode: 'note' });
+
+  renderKeyInfo();
 
   elTheoryRoots.querySelectorAll('.root-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.value === theoryRoot);
