@@ -30,11 +30,9 @@ NOTE_NAMES.forEach((root, rootIndex) => {
 });
 
 // --- Key detection: match the detected chord set against every possible key's diatonic chords ---
-const MAJOR_KEY_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
-const MAJOR_KEY_QUALITIES = ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished'];
-const MINOR_KEY_INTERVALS = [0, 2, 3, 5, 7, 8, 10];
-const MINOR_KEY_QUALITIES = ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'];
-
+// Reuses MAJOR_KEY_INTERVALS/MAJOR_KEY_QUALITIES/MINOR_KEY_INTERVALS/MINOR_KEY_QUALITIES from theory.js
+// (loaded earlier) rather than redeclaring them, since duplicate top-level const names across
+// classic <script> files throw a SyntaxError that silently kills this entire script.
 function keyChordSet(root, keyQuality) {
   const rootIndex = NOTE_NAMES.indexOf(root);
   const intervals = keyQuality === 'minor' ? MINOR_KEY_INTERVALS : MAJOR_KEY_INTERVALS;
