@@ -1,4 +1,4 @@
-const CACHE_NAME = 'guitar-app-v16';
+const CACHE_NAME = 'guitar-app-v17';
 const CACHE_FILES = [
   './',
   './index.html',
@@ -22,7 +22,7 @@ const CACHE_FILES = [
   './js/scale-diagram.js',
   './js/scales.js',
   './js/techniques.js',
-  './js/songid.js',
+  './js/livechords.js',
   './js/nav.js',
   './icons/icon-180.png',
   './icons/icon-192.png',

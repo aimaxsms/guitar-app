@@ -24,7 +24,7 @@
       <button class="tab-btn" data-tab="theory">Chord Theory</button>
       <button class="tab-btn" data-tab="scales">Scales</button>
       <button class="tab-btn" data-tab="techniques">Techniques</button>
-      <button class="tab-btn" data-tab="songid">Song ID</button>
+      <button class="tab-btn" data-tab="livechords">Live Chords</button>
     </nav>
 
     <section id="tab-tuner" class="tab-panel panel active">
@@ -151,7 +151,12 @@
         A song's "key" is the scale its chords and melody are built from — the same root and
         major/minor choice you just picked above also defines a key. Once you know a song's key,
         you know the 7 chords most likely to show up in it, built by stacking a 3rd and 5th on
-        top of each note of that key's scale.
+        top of each note of that key's scale. For example:
+      </p>
+      <p class="theory-intro key-examples">
+        Key of <strong>C major</strong>: C – Dm – Em – F – G – Am – B°<br />
+        Key of <strong>G major</strong>: G – Am – Bm – C – D – Em – F#°<br />
+        Key of <strong>E minor</strong>: Em – F#° – G – Am – Bm – C – D
       </p>
       <div id="keyInfo" class="key-info"></div>
     </section>
@@ -185,25 +190,30 @@
       <div id="techniqueCards" class="technique-cards"></div>
     </section>
 
-    <section id="tab-songid" class="tab-panel panel songid-panel">
-      <h1>Song ID</h1>
+    <section id="tab-livechords" class="tab-panel panel songid-panel">
+      <h1>Live Chords</h1>
 
       <p class="theory-intro">
-        Listens for about 8 seconds and tries to identify what's playing nearby, using a free
-        third-party recognition service (AudD). The audio clip goes directly from this device to
-        AudD for matching — nothing is stored or sent anywhere else. You'll need your own free
-        API key from <strong>audd.io</strong>.
+        Listens to your guitar in real time and guesses the chord you're playing — entirely on
+        this device, no recognition service, no API key, no upload. Play through a song and it
+        builds up the chord progression as you go. Accuracy depends on a clean, mostly-solo
+        guitar signal; heavy background noise or a full band mix will confuse it.
       </p>
 
-      <div id="auddKeySetup" class="audd-key-setup">
-        <input type="text" id="auddApiKeyInput" class="tuning-select" placeholder="Paste your AudD API token" />
-        <button id="saveAuddKeyBtn" class="start-btn secondary-btn">Save Key</button>
+      <div class="live-chord-display">
+        <div id="liveChordName" class="live-chord-name">—</div>
+      </div>
+      <div id="liveChordStatus" class="status">Tap Start and play a chord</div>
+
+      <div id="liveChordLog" class="live-chord-log"></div>
+
+      <div class="btn-row">
+        <button id="liveChordStartBtn" class="start-btn">Start</button>
+        <button id="liveChordStopBtn" class="start-btn secondary-btn" style="display:none;">Stop</button>
+        <button id="liveChordClearBtn" class="start-btn secondary-btn">Clear</button>
       </div>
 
-      <button id="identifyBtn" class="start-btn" disabled>Listen</button>
-      <div id="songIdStatus" class="status">Add your API key above first</div>
-
-      <div id="songIdResult" class="songid-result"></div>
+      <div id="liveChordSaveResult" class="songid-result"></div>
     </section>
   </main>
 
@@ -223,7 +233,7 @@
   <script src="js/scale-diagram.js"></script>
   <script src="js/scales.js"></script>
   <script src="js/techniques.js"></script>
-  <script src="js/songid.js"></script>
+  <script src="js/livechords.js"></script>
   <script src="js/nav.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
