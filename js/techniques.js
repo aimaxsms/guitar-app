@@ -586,6 +586,31 @@ const TECHNIQUE_GROUPS = {
         },
       },
       {
+        name: 'Essential Jazz Chord Shapes',
+        description:
+          'Four compact, movable grips (root on the A string, D-G-B strings fretted, low E and ' +
+          'high e muted) that cover the chord qualities jazz harmony runs on most: minor 7, ' +
+          'dominant 7, half-diminished (m7b5), and fully diminished 7 — the last two are the ones ' +
+          'the main Chord Library doesn\'t cover, and they\'re essential for minor ii-V-i\'s and ' +
+          'diminished passing chords.',
+        tip:
+          'These are movable — the whole grip just slides up/down the neck with the root note on ' +
+          'the A string. Learn where the root sits for each shape, then practice sliding each shape ' +
+          'through all 12 keys before trying to use them in a progression.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Cm7, C7, Cm7b5, Cdim7 (verified voicings, root on A string, movable shapes)',
+          tab:
+            'Cm7         C7          Cm7b5       Cdim7\n' +
+            'e|--x--      e|--x--      e|--x--      e|--x--\n' +
+            'B|--4--      B|--5--      B|--4--      B|--4--\n' +
+            'G|--3--      G|--3--      G|--4--      G|--2--\n' +
+            'D|--5--      D|--5--      D|--4--      D|--4--\n' +
+            'A|--3--      A|--3--      A|--3--      A|--3--\n' +
+            'E|--x--      E|--x--      E|--x--      E|--x--',
+        },
+      },
+      {
         name: 'ii-V-I Progressions',
         description:
           'The most common harmonic movement in jazz — a minor 7th chord on the 2nd scale ' +
