@@ -1,4 +1,4 @@
-const CACHE_NAME = 'guitar-app-v18';
+const CACHE_NAME = 'guitar-app-v19';
 const CACHE_FILES = [
   './',
   './index.html',

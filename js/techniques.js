@@ -1,4 +1,143 @@
 const TECHNIQUE_GROUPS = {
+  readtab: {
+    label: 'How to Read Tab',
+    intro:
+      'Guitar tablature ("tab") is a quick way to write down exactly which string and fret to ' +
+      'play, without needing to read standard music notation. Every tab example on this site ' +
+      'uses the symbols explained here, so it\'s worth going through this once before the ' +
+      'artist-specific sections.',
+    items: [
+      {
+        name: 'Strings & Frets',
+        description:
+          'A tab is six horizontal lines, one per guitar string. The top line is the thinnest ' +
+          'string (high e) and the bottom line is the thickest (low E) — the same top-to-bottom ' +
+          'order as looking down at the guitar in playing position. A number on a line tells you ' +
+          'which fret to press on that string; "0" means play the string open (no finger pressed ' +
+          'down).',
+        tip:
+          'Say the string names out loud in order top to bottom a few times — e, B, G, D, A, E — ' +
+          'until reading which line is which becomes automatic.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Single notes read left to right (open E, then 3rd fret G string, then open B)',
+          tab:
+            'e|------|\n' +
+            'B|----0-|\n' +
+            'G|--3---|\n' +
+            'D|------|\n' +
+            'A|------|\n' +
+            'E|0-----|',
+        },
+      },
+      {
+        name: 'Chords: Numbers Stacked Vertically',
+        description:
+          'When two or more numbers line up directly above/below each other (in the same vertical ' +
+          'position), that means play all of those notes at the same time — it\'s how tab shows a ' +
+          'chord instead of a single melody note. An "x" on a line means mute or don\'t play that ' +
+          'string at all.',
+        tip:
+          'Scan a tab column by column rather than line by line — if you only read one string at ' +
+          'a time you\'ll miss that several notes were meant to ring together as a chord.',
+        listenFor: null,
+        exampleTab: {
+          label: 'An open C chord written in tab (compare to the chord diagram version)',
+          tab:
+            'e|--0--\n' +
+            'B|--1--\n' +
+            'G|--0--\n' +
+            'D|--2--\n' +
+            'A|--3--\n' +
+            'E|--x--',
+        },
+      },
+      {
+        name: 'Hammer-Ons & Pull-Offs (h / p)',
+        description:
+          'A hammer-on ("h") means pick one note, then without picking again, quickly press down a ' +
+          'finger on a higher fret on the same string to sound the second note. A pull-off ("p") is ' +
+          'the reverse: pick a fretted note, then lift that finger off (sometimes flicking it) to ' +
+          'let a lower note or the open string ring out — both let you play two notes with only one ' +
+          'pick stroke.',
+        tip:
+          'Practice hammer-ons and pull-offs with no pick at all first (just the fretting hand) to ' +
+          'make sure the second note is loud and clear on its own before adding the pick back in.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Hammer-on from open to 2nd fret, then pull-off back to open (G string)',
+          tab: 'G|--0h2p0--|',
+        },
+      },
+      {
+        name: 'Slides (/ and \\)',
+        description:
+          'A forward slash ("/") between two numbers means slide up from the first fret to the ' +
+          'second while the note keeps ringing; a backslash ("\\") means slide down. Only the first ' +
+          'note is usually picked — the slide itself produces the second note.',
+        tip:
+          'Keep steady pressure on the string as you slide so the note doesn\'t die out partway — ' +
+          'the pitch should glide smoothly from one fret to the other, not stop and restart.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Slide up from 2nd to 5th fret, then down from 5th to 2nd (D string)',
+          tab: 'D|--2/5--5\\2--|',
+        },
+      },
+      {
+        name: 'Bends & Releases (b / r)',
+        description:
+          'A "b" after a number means bend that fretted note up in pitch by pushing or pulling the ' +
+          'string sideways — the number after the "b" (sometimes in parentheses) shows the target ' +
+          'pitch as if it were fretted normally, e.g. "7b9" means fret the 7th fret and bend it up ' +
+          'until it sounds like the 9th fret. An "r" means release the bend back down.',
+        tip:
+          'Check your bend target by first fretting that note normally and listening to it, then ' +
+          'practice bending up to match that exact pitch by ear from the lower fret.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Bend 7th fret up to sound like 9th fret, then release back down (B string)',
+          tab: 'B|--7b9r7--|',
+        },
+      },
+      {
+        name: 'Vibrato (~) & Palm Muting (PM)',
+        description:
+          'A tilde ("~") after a note means add vibrato — a slight, repeated wavering of pitch, ' +
+          'usually done by small fast bends or finger shaking. "PM" with a dashed line under a ' +
+          'passage means palm-mute those notes by resting the picking-hand palm lightly on the ' +
+          'strings near the bridge for a muted, percussive tone.',
+        tip:
+          'Add vibrato only after a note has already settled at the right pitch — vibrato added too ' +
+          'early just sounds like an out-of-tune bend.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Sustained note with vibrato, then a palm-muted phrase',
+          tab:
+            'e|--5~-----------|\n' +
+            'PM: ------|--|--|--|',
+        },
+      },
+      {
+        name: 'Rhythm Notation Used on This Site',
+        description:
+          'Plain tab shows pitch but not timing. For strumming patterns, this site uses a simple ' +
+          'letter shorthand instead of music notation: "D" for a downstroke, "U" for an upstroke, ' +
+          'and "x" for a muted/ghosted stroke where the hand keeps moving but doesn\'t sound the ' +
+          'strings — read left to right as one strum per letter.',
+        tip:
+          'Say the pattern out loud as a rhythm ("down... down-up... down") before trying to play ' +
+          'it — getting the rhythm into your voice first makes it much easier to get into your ' +
+          'hand.',
+        listenFor: null,
+        exampleTab: {
+          label: 'A common strum pattern read as: down, down-up, up-down-up',
+          tab: 'D   DU   UDU',
+        },
+      },
+    ],
+  },
+
   mayer: {
     label: 'John Mayer',
     intro:
@@ -237,6 +376,50 @@ const TECHNIQUE_GROUPS = {
           'changing your fretting.',
         listenFor: null,
         exampleTab: null,
+      },
+      {
+        name: 'Signature-Style Riff (Original Composition)',
+        description:
+          'A full riff written in the muted, syncopated funk-pop groove style heard in his ' +
+          'rhythm playing — ghosted muted hits mixed with open chord tones over an A chord, not a ' +
+          'transcription of any specific song, but built from the same vocabulary.',
+        tip:
+          'Keep the picking hand moving in strict eighth notes the whole way through, even on the ' +
+          'muted (x) hits — the groove comes from the hand never stopping, only the strings ' +
+          'changing between muted and open.',
+        listenFor: ['Waiting on the World to Change', 'Who You Love', 'Belief'],
+        exampleTab: {
+          label: 'Signature-style funk riff in A (original composition)',
+          tab:
+            'e|--0-------0-----0---|\n' +
+            'B|-----2--x----2-x----|\n' +
+            'G|--2-----x-2-----x---|\n' +
+            'D|--2-----x-2-----x---|\n' +
+            'A|--0-----------------|\n' +
+            'E|---------------------|',
+        },
+      },
+      {
+        name: 'Signature-Style Guitar Solo (Original Composition)',
+        description:
+          'A short lead phrase written in A minor pentatonic that strings together several of the ' +
+          'techniques above — a pre-bend/release, a double stop, and a call-and-response pause — ' +
+          'into one original 2-bar solo idea, giving you a template to build your own phrases from.',
+        tip:
+          'Play it through slowly first to get the bend targets and timing right, then try writing ' +
+          'your own "answer" phrase for the second bar instead of using the one given, using the ' +
+          'same call-and-response idea.',
+        listenFor: ['Gravity', 'Wildfire', 'Vultures'],
+        exampleTab: {
+          label: 'Signature-style A minor pentatonic solo phrase (original composition)',
+          tab:
+            'e|------------------5b7r5---------5--|\n' +
+            'B|----5---8p5------------8-8----------|\n' +
+            'G|--5---------------------------------|\n' +
+            'D|-------------------------------------|\n' +
+            'A|-------------------------------------|\n' +
+            'E|-------------------------------------|',
+        },
       },
       {
         name: 'Suggested Practice Order',
@@ -494,7 +677,7 @@ const TECHNIQUE_GROUPS = {
   },
 };
 
-let activeTechniqueGroup = 'mayer';
+let activeTechniqueGroup = 'readtab';
 
 const elTechniqueSubTabs = document.getElementById('techniqueSubTabs');
 const elTechniqueIntro = document.getElementById('techniqueIntro');
