@@ -707,11 +707,45 @@ h1 {
   font-weight: 700;
 }
 
-.mayer-panel {
+.techniques-panel {
   justify-content: flex-start;
 }
 
-.mayer-techniques {
+.sub-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  background: #16161b;
+  border: 1px solid #26262c;
+  border-radius: 999px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.sub-tab-btn {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8b8f99;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+
+.sub-tab-btn:hover {
+  color: #d1d5db;
+}
+
+.sub-tab-btn.active {
+  color: #0a0a0c;
+  background: linear-gradient(180deg, #5eeb9a, #34c979);
+}
+
+.technique-cards {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -720,7 +754,7 @@ h1 {
   text-align: left;
 }
 
-.mayer-card {
+.technique-card {
   background: linear-gradient(180deg, #1e1e24, #18181d);
   border: 1px solid #2e2e35;
   border-radius: 12px;
@@ -728,28 +762,28 @@ h1 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.mayer-card-title {
+.technique-card-title {
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 8px;
   color: #4ade80;
 }
 
-.mayer-card-desc {
+.technique-card-desc {
   font-size: 0.9rem;
   color: #d1d5db;
   margin: 0 0 8px;
   line-height: 1.5;
 }
 
-.mayer-card-tip {
+.technique-card-tip {
   font-size: 0.85rem;
   color: #9ca3af;
   margin: 0 0 8px;
   line-height: 1.4;
 }
 
-.mayer-card-listen {
+.technique-card-listen {
   font-size: 0.8rem;
   color: #6b7280;
   margin: 0 0 8px;

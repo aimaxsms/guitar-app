@@ -23,7 +23,7 @@
       <button class="tab-btn" data-tab="library">Chord Library</button>
       <button class="tab-btn" data-tab="theory">Chord Theory</button>
       <button class="tab-btn" data-tab="scales">Scales</button>
-      <button class="tab-btn" data-tab="mayer">John Mayer</button>
+      <button class="tab-btn" data-tab="techniques">Techniques</button>
     </nav>
 
     <section id="tab-tuner" class="tab-panel panel active">
@@ -165,19 +165,14 @@
       <button id="playScaleBtn" class="start-btn secondary-btn">Play Scale</button>
     </section>
 
-    <section id="tab-mayer" class="tab-panel panel mayer-panel">
-      <h1>John Mayer Style Guide</h1>
+    <section id="tab-techniques" class="tab-panel panel techniques-panel">
+      <h1>Techniques</h1>
 
-      <p class="theory-intro">
-        A full breakdown of the techniques, phrasing habits, and tone philosophy behind his
-        playing — not transcriptions of his songs, but the building blocks (picking hands,
-        chord embellishments, blues vocabulary, timing feel) you can practice and apply to
-        anything you play. Example riffs are written to demonstrate each technique, not copied
-        from any specific recording. Ordered roughly easiest-to-hardest, with a suggested
-        practice path at the end.
-      </p>
+      <div id="techniqueSubTabs" class="sub-tabs"></div>
 
-      <div id="mayerTechniques" class="mayer-techniques"></div>
+      <p id="techniqueIntro" class="theory-intro"></p>
+
+      <div id="techniqueCards" class="technique-cards"></div>
     </section>
   </main>
 
@@ -195,7 +190,7 @@
   <script src="js/theory.js"></script>
   <script src="js/scale-diagram.js"></script>
   <script src="js/scales.js"></script>
-  <script src="js/mayer.js"></script>
+  <script src="js/techniques.js"></script>
   <script src="js/nav.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
