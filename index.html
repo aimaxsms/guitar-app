@@ -96,6 +96,19 @@
     <section id="tab-sheets" class="tab-panel panel sheets-panel">
       <h1>Song Library</h1>
 
+      <form id="songFinderForm" class="song-finder">
+        <label for="songFinderInput" class="song-finder-label">Find chords for any song</label>
+        <input id="songFinderInput" class="song-finder-input" type="search"
+               placeholder="Song name + artist, e.g. Wonderwall Oasis" autocomplete="off" />
+        <div class="song-finder-links">
+          <button type="submit" data-site="ug" class="start-btn">Ultimate Guitar</button>
+          <button type="submit" data-site="chordify" class="start-btn secondary-btn">Chordify</button>
+          <button type="submit" data-site="songsterr" class="start-btn secondary-btn">Songsterr (tabs)</button>
+          <button type="submit" data-site="youtube" class="start-btn secondary-btn">YouTube lesson</button>
+        </div>
+        <p class="sheet-hint">Free — opens the song's chord chart on that site in a new tab.</p>
+      </form>
+
       <select id="sheetSelect" class="tuning-select"></select>
 
       <div id="songMeta" class="song-meta"></div>

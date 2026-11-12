@@ -255,3 +255,25 @@ function refreshSheetSongOptions(selectKey) {
 }
 
 refreshSheetSongOptions('built-0');
+
+// --- Free song finder: hands the search off to free chord sites (no API, no cost) ---
+(function setupSongFinder() {
+  const form = document.getElementById('songFinderForm');
+  const input = document.getElementById('songFinderInput');
+  if (!form || !input) return;
+
+  const buildUrl = {
+    ug: (q) => `https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(q)}`,
+    chordify: (q) => `https://chordify.net/search/${encodeURIComponent(q)}`,
+    songsterr: (q) => `https://www.songsterr.com/?pattern=${encodeURIComponent(q)}`,
+    youtube: (q) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' guitar chords lesson')}`,
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const query = input.value.trim();
+    if (!query) { input.focus(); return; }
+    const site = (event.submitter && event.submitter.dataset.site) || 'ug';
+    window.open(buildUrl[site](query), '_blank', 'noopener');
+  });
+})();

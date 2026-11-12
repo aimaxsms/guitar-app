@@ -1026,3 +1026,48 @@ h1 {
   border: 1px solid #2a2a30;
   border-radius: 999px;
 }
+
+.song-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #26262c;
+}
+
+.song-finder-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c9ccd3;
+}
+
+.song-finder-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: #f5f5f5;
+  background: #141418;
+  border: 1px solid #333;
+  border-radius: 10px;
+}
+
+.song-finder-input:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+.song-finder-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.song-finder-links .start-btn {
+  margin-top: 0;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+}
