@@ -643,9 +643,11 @@ async function fetchPage(url, ctx) {
   return text;
 }
 
-// Access codes live in the ACCESS_CODES secret (set with `wrangler secret put ACCESS_CODES`),
-// never in this public repo. Format: "name:code,name:code". No secret set = nobody gets in.
+// Access codes live in the ACCESS_CODES secret (set with `wrangler secret put ACCESS_CODES`,
+// or worker/set-access-code.mjs), never in this public repo. Format: "name:code,name:code".
+// With no secret set, search is open to anyone using the app; set one to make it private again.
 function accessName(request, env) {
+  if (!(env.ACCESS_CODES || '').trim()) return 'open';
   const given = (request.headers.get('X-Access-Code') || '').trim().toLowerCase();
   if (!given) return null;
   for (const pair of (env.ACCESS_CODES || '').split(',')) {

@@ -616,15 +616,17 @@ refreshSheetSongOptions('built-0');
   codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveCode(); } });
 
   class NeedCodeError extends Error {}
+  // First time asked: just show the box. After a rejected code: say so.
+  const codeHint = (err) => (err.message === 'Access code needed' ? '' : `${err.message}. Check it and try again.`);
 
   async function callApi(path) {
+    // Only asks for a code if the server is in private mode (answers 401).
     const code = getAccessCode();
-    if (!code) throw new NeedCodeError('Access code needed');
-    const res = await fetch(CHORD_API + path, { headers: { 'X-Access-Code': code } });
+    const res = await fetch(CHORD_API + path, code ? { headers: { 'X-Access-Code': code } } : {});
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) {
       setAccessCode('');
-      throw new NeedCodeError('That access code didn\'t work');
+      throw new NeedCodeError(code ? 'That access code didn\'t work' : 'Access code needed');
     }
     if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
     return data;
@@ -785,7 +787,7 @@ refreshSheetSongOptions('built-0');
     } catch (err) {
       if (err instanceof NeedCodeError) {
         retryAfterCode = runSearch;
-        askForCode(err.message === 'Access code needed' ? '' : `${err.message}. Check it and try again.`);
+        askForCode(codeHint(err));
         return;
       }
       setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
