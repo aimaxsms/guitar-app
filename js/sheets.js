@@ -300,39 +300,134 @@ refreshSheetSongOptions('built-0');
     return data;
   }
 
+  const filtersEl = document.getElementById('songFinderFilters');
+  const videoEl = document.getElementById('songFinderVideo');
+  const SOURCE_CLASS = {
+    'Ultimate Guitar': 'src-ug',
+    Songsterr: 'src-songsterr',
+    LaCuerda: 'src-lacuerda',
+    YouTube: 'src-youtube',
+  };
+  let lastResults = [];
+  let activeFilter = 'All';
+
+  function formatViews(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M views';
+    if (n >= 1e3) return Math.round(n / 1e3) + 'K views';
+    return n + ' views';
+  }
+
+  function renderFilters() {
+    filtersEl.innerHTML = '';
+    const counts = {};
+    lastResults.forEach((r) => { counts[r.source] = (counts[r.source] || 0) + 1; });
+    ['All', ...Object.keys(SOURCE_CLASS).filter((s) => counts[s])].forEach((name) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'song-finder-chip' + (name === activeFilter ? ' active' : '');
+      chip.textContent = name === 'All' ? `All (${lastResults.length})` : `${name} (${counts[name]})`;
+      chip.addEventListener('click', () => {
+        activeFilter = name;
+        renderFilters();
+        renderResults();
+      });
+      filtersEl.appendChild(chip);
+    });
+  }
+
+  function renderResults() {
+    resultsEl.innerHTML = '';
+    lastResults
+      .filter((r) => activeFilter === 'All' || r.source === activeFilter)
+      .forEach((r) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'song-finder-result';
+
+        if (r.videoId) {
+          const thumb = document.createElement('img');
+          thumb.className = 'song-finder-thumb';
+          thumb.src = `https://i.ytimg.com/vi/${r.videoId}/mqdefault.jpg`;
+          thumb.alt = '';
+          thumb.loading = 'lazy';
+          btn.appendChild(thumb);
+        }
+
+        const textWrap = document.createElement('span');
+        textWrap.className = 'song-finder-result-text';
+        const main = document.createElement('span');
+        main.className = 'song-finder-result-title';
+        main.textContent = r.videoId ? r.title : `${r.title} — ${r.artist}`;
+        const sub = document.createElement('span');
+        sub.className = 'song-finder-result-sub';
+        const badge = document.createElement('span');
+        badge.className = 'song-finder-badge ' + (SOURCE_CLASS[r.source] || '');
+        badge.textContent = r.source;
+        sub.appendChild(badge);
+        const bits = [];
+        if (r.videoId) {
+          if (r.artist) bits.push(r.artist);
+          if (r.length) bits.push(r.length);
+        } else if (r.version) bits.push(`version ${r.version}`);
+        if (r.rating) bits.push(`★ ${r.rating}`);
+        if (r.votes) bits.push(`${r.votes.toLocaleString()} votes`);
+        if (r.views) bits.push(formatViews(r.views));
+        sub.appendChild(document.createTextNode(' ' + bits.join(' · ')));
+        textWrap.appendChild(main);
+        textWrap.appendChild(sub);
+        btn.appendChild(textWrap);
+
+        btn.addEventListener('click', () => (r.videoId ? playVideo(r) : loadChart(r)));
+        resultsEl.appendChild(btn);
+      });
+  }
+
+  function playVideo(r) {
+    videoEl.innerHTML = '';
+    const frameWrap = document.createElement('div');
+    frameWrap.className = 'song-finder-video-frame';
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${r.videoId}?autoplay=1&playsinline=1&rel=0`;
+    frame.title = r.title;
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    frameWrap.appendChild(frame);
+    const bar = document.createElement('div');
+    bar.className = 'song-finder-video-bar';
+    const label = document.createElement('span');
+    label.textContent = r.title;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'song-meta-btn';
+    close.textContent = 'Close video';
+    close.addEventListener('click', () => { videoEl.innerHTML = ''; videoEl.style.display = 'none'; });
+    bar.appendChild(label);
+    bar.appendChild(close);
+    videoEl.appendChild(frameWrap);
+    videoEl.appendChild(bar);
+    videoEl.style.display = '';
+    videoEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   async function runSearch() {
     const query = input.value.trim();
     if (!query) { input.focus(); return; }
     input.blur();
     resultsEl.innerHTML = '';
-    setStatus('Searching…');
+    filtersEl.innerHTML = '';
+    setStatus('Searching Ultimate Guitar, Songsterr, LaCuerda and YouTube…');
     searchBtn.disabled = true;
     try {
       const { results } = await callApi('/search?q=' + encodeURIComponent(query));
+      lastResults = results;
+      activeFilter = 'All';
       if (!results.length) {
-        setStatus('No chord charts found. Try adding the artist, or use the links below.');
+        setStatus('Nothing found. Try adding the artist, or use the links below.');
         return;
       }
-      setStatus(`${results.length} result${results.length === 1 ? '' : 's'} — tap one to load it`);
-      results.forEach((r) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'song-finder-result';
-        const main = document.createElement('span');
-        main.className = 'song-finder-result-title';
-        main.textContent = `${r.title} — ${r.artist}`;
-        const sub = document.createElement('span');
-        sub.className = 'song-finder-result-sub';
-        const bits = [r.source];
-        if (r.version) bits.push(`version ${r.version}`);
-        if (r.rating) bits.push(`★ ${r.rating}`);
-        if (r.votes) bits.push(`${r.votes.toLocaleString()} votes`);
-        sub.textContent = bits.join(' · ');
-        btn.appendChild(main);
-        btn.appendChild(sub);
-        btn.addEventListener('click', () => loadChart(r));
-        resultsEl.appendChild(btn);
-      });
+      setStatus('Best matches first — tap a chart to save it, or a video to watch it here');
+      renderFilters();
+      renderResults();
     } catch (err) {
       setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
     } finally {

@@ -239,6 +239,152 @@ export function parseLacuerdaSong(html, url) {
   };
 }
 
+// ---------- Songsterr (chord sheets; its note-by-note tabs need their player) ----------
+
+export function parseSongsterrSearch(list) {
+  return (Array.isArray(list) ? list : [])
+    .filter((s) => s.hasChords)
+    .map((s) => ({
+      source: 'Songsterr',
+      title: s.title,
+      artist: s.artist,
+      type: 'Chords',
+      rating: null,
+      votes: 0,
+      views: (s.tracks || []).reduce((sum, t) => sum + (t.views || 0), 0),
+      // Songsterr redirects any slug to the right one, so only the id matters.
+      url: `https://www.songsterr.com/a/wsa/song-chords-s${s.songId}`,
+    }));
+}
+
+function songsterrChordName(chord) {
+  const base = chord.baseNote && chord.baseNote.name;
+  if (!base) return '?';
+  const suffix = (chord.chordType && chord.chordType.suffix) || '';
+  const bass = chord.firstNote && chord.firstNote.name;
+  return base + suffix + (bass && bass !== base ? '/' + bass : '');
+}
+
+export function parseSongsterrSong(html, url) {
+  const m = html.match(/<script id="state" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!m) throw new Error('Songsterr page format not recognised');
+  const state = JSON.parse(m[1]);
+  const items = state.chordpro && state.chordpro.current;
+  if (!Array.isArray(items) || !items.length) throw new Error('This Songsterr song has no chord sheet');
+  const info = (state.chords && state.chords.current) || (state.meta && state.meta.current) || {};
+  let capo = 0;
+  let tuning = 'Standard';
+  const lines = [];
+  items.forEach((item) => {
+    if (item.type === 'capo') capo = Number(item.text) || 0;
+    else if (item.type === 'tuning') tuning = item.text || tuning;
+    else if (item.type === 'section') {
+      if (lines.length && lines[lines.length - 1] !== '') lines.push('');
+      lines.push(`(${item.text})`);
+    } else if (item.type === 'line') {
+      const text = (item.line || [])
+        .map((p) => (p.type === 'chord' ? `[${songsterrChordName(p.chord)}]` : (p.text || '').replace(/[[\]]/g, '')))
+        .join('');
+      lines.push(text.replace(/\s+$/, ''));
+    }
+  });
+  return {
+    title: info.title || 'Song',
+    artist: info.artist || '',
+    key: '?',
+    capo,
+    tuning: tuning.replace(/\s*\(EADGBE\)/, ''),
+    source: 'Songsterr',
+    sourceUrl: url,
+    lines,
+  };
+}
+
+// ---------- YouTube lessons (played inside the app with YouTube's own embed player) ----------
+
+// The results page is ~1.5MB; pulling just the fields we need with regexes keeps us far under
+// the free plan's CPU limit instead of JSON-parsing the whole thing.
+export function parseYoutubeSearch(html) {
+  const out = [];
+  const seen = new Set();
+  const re = /"videoRenderer":\{"videoId":"([\w-]{11})"/g;
+  let m;
+  while ((m = re.exec(html)) && out.length < 12) {
+    const id = m[1];
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const chunk = html.slice(m.index, m.index + 8000);
+    const title = chunk.match(/"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/);
+    const channel = chunk.match(/"ownerText":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/);
+    const views = chunk.match(/"viewCountText":\{"simpleText":"([\d,.]+)/);
+    const length = chunk.match(/"lengthText":\{(?:"accessibility":\{"accessibilityData":\{"label":"[^"]*"\}\},)?"simpleText":"([\d:]+)"/);
+    if (!title || !length) continue; // skip live streams / shorts without a duration
+    const unescape = (s) => JSON.parse(`"${s}"`);
+    out.push({
+      source: 'YouTube',
+      title: unescape(title[1]),
+      artist: channel ? unescape(channel[1]) : '',
+      type: 'Video lesson',
+      rating: null,
+      votes: 0,
+      views: views ? Number(views[1].replace(/[,.]/g, '')) : 0,
+      length: length[1],
+      videoId: id,
+      url: `https://www.youtube.com/watch?v=${id}`,
+    });
+  }
+  return out;
+}
+
+// ---------- Ranking: relevance to what was typed, then rating / popularity ----------
+
+const normalize = (s) =>
+  (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9ñ ]+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+function relevance(query, r) {
+  const q = normalize(query);
+  if (!q.length) return 0;
+  const hay = new Set(normalize(`${r.title} ${r.artist}`));
+  const titleWords = normalize(r.title);
+  const hits = q.filter((w) => hay.has(w)).length / q.length;
+  const exactTitle = titleWords.join(' ') === q.join(' ') ? 0.15 : 0;
+  // Long YouTube titles shouldn't win just because they repeat words; short exact titles should.
+  return Math.min(1, hits + exactTitle);
+}
+
+function quality(r) {
+  const log = (n, max) => Math.min(1, Math.log10((n || 0) + 1) / max);
+  if (r.source === 'Ultimate Guitar') {
+    // Bayesian average so a 5★ from 2 votes doesn't beat 4.8★ from 12,000.
+    const bayes = ((r.rating || 0) * r.votes + 4 * 20) / (r.votes + 20);
+    return 0.6 * (bayes / 5) + 0.4 * log(r.votes, 4);
+  }
+  if (r.source === 'Songsterr') return 0.3 + 0.7 * log(r.views, 6);
+  if (r.source === 'YouTube') {
+    // Music videos and live clips aren't lessons; keep them, but well below real lessons.
+    const isLesson = /lesson|tutorial|how to play|chords|tab|easy guitar|acordes|c[oó]mo tocar|aprende|clase/i.test(r.title);
+    return isLesson ? log(r.views, 7) : -0.6;
+  }
+  return 0.5; // LaCuerda shows no ratings
+}
+
+export function rankResults(query, results) {
+  return results
+    .map((r) => {
+      const rel = relevance(query, r);
+      const qual = quality(r);
+      return { ...r, relevance: Math.round(rel * 100), score: Math.round((0.6 * rel + 0.4 * qual) * 1000) / 1000 };
+    })
+    .filter((r) => r.relevance > 0)
+    .sort((a, b) => b.score - a.score);
+}
+
 // ---------- HTTP ----------
 
 async function fetchPage(url, ctx) {
@@ -281,15 +427,22 @@ export default {
       if (url.pathname === '/search') {
         const q = (url.searchParams.get('q') || '').trim().slice(0, 100);
         if (!q) return json({ error: 'Type a song name' }, 400, origin);
-        const [ug, lc] = await Promise.allSettled([
-          fetchPage(`https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(q)}`, ctx).then(parseUgSearch),
-          fetchPage(`https://acordes.lacuerda.net/busca.php?exp=${encodeURIComponent(q)}`, ctx).then(parseLacuerdaSearch),
-        ]);
-        const results = [
-          ...(ug.status === 'fulfilled' ? ug.value.slice(0, 10) : []),
-          ...(lc.status === 'fulfilled' ? lc.value.slice(0, 10) : []),
+        const enc = encodeURIComponent(q);
+        const sources = [
+          ['Ultimate Guitar', () => fetchPage(`https://www.ultimate-guitar.com/search.php?search_type=title&value=${enc}`, ctx).then(parseUgSearch), 10],
+          ['Songsterr', () => fetchPage(`https://www.songsterr.com/api/songs?pattern=${enc}&size=20`, ctx).then((t) => parseSongsterrSearch(JSON.parse(t))), 6],
+          ['LaCuerda', () => fetchPage(`https://acordes.lacuerda.net/busca.php?exp=${enc}`, ctx).then(parseLacuerdaSearch), 6],
+          ['YouTube', () => fetchPage(`https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' guitar lesson')}`, ctx).then(parseYoutubeSearch), 8],
         ];
-        const errors = [ug, lc].filter((r) => r.status === 'rejected').map((r) => r.reason.message);
+        const settled = await Promise.allSettled(sources.map(([, run]) => run()));
+        let results = [];
+        const errors = [];
+        settled.forEach((s, i) => {
+          const [name, , limit] = sources[i];
+          if (s.status === 'fulfilled') results.push(...s.value.slice(0, limit));
+          else errors.push(`${name}: ${s.reason.message}`);
+        });
+        results = rankResults(q, results);
         return json({ results, errors }, 200, origin);
       }
 
@@ -302,7 +455,10 @@ export default {
         if (target.hostname === 'acordes.lacuerda.net') {
           return json(parseLacuerdaSong(await fetchPage(target.href, ctx), target.href), 200, origin);
         }
-        return json({ error: 'Only Ultimate Guitar and LaCuerda links are supported' }, 400, origin);
+        if (target.hostname === 'www.songsterr.com' && /^\/a\/wsa\/[\w-]+-chords-s\d+$/.test(target.pathname)) {
+          return json(parseSongsterrSong(await fetchPage(target.href, ctx), target.href), 200, origin);
+        }
+        return json({ error: 'Only Ultimate Guitar, Songsterr and LaCuerda links are supported' }, 400, origin);
       }
 
       return json({ error: 'Not found' }, 404, origin);

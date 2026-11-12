@@ -1140,3 +1140,110 @@ h1 {
 .song-finder-or {
   margin: 4px 0 0;
 }
+
+.song-finder-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.song-finder-chip {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  color: #c9ccd3;
+  background: #18181d;
+  border: 1px solid #2c2c33;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.song-finder-chip.active {
+  color: #0a0a0c;
+  background: #4ade80;
+  border-color: #4ade80;
+  font-weight: 600;
+}
+
+.song-finder-results {
+  max-height: 460px;
+}
+
+.song-finder-result {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.song-finder-result-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.song-finder-result-title {
+  overflow-wrap: anywhere;
+}
+
+.song-finder-thumb {
+  width: 96px;
+  height: 54px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #222;
+}
+
+.song-finder-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  margin-right: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 4px;
+  color: #0a0a0c;
+  background: #9ca3af;
+}
+
+.song-finder-badge.src-ug { background: #fbbf24; }
+.song-finder-badge.src-songsterr { background: #60a5fa; }
+.song-finder-badge.src-lacuerda { background: #f472b6; }
+.song-finder-badge.src-youtube { background: #f87171; }
+
+.song-finder-video {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.song-finder-video-frame {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.song-finder-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.song-finder-video-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #a1a6b0;
+}
+
+.song-finder-video-bar span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
