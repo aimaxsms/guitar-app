@@ -340,6 +340,7 @@ h1 {
 
 .sheet-line {
   margin-bottom: 4px;
+  white-space: pre-wrap;
 }
 
 .chord-tag {
@@ -1076,4 +1077,66 @@ h1 {
   display: inline-block;
   text-decoration: none;
   text-align: center;
+}
+
+.song-finder-row {
+  display: flex;
+  gap: 8px;
+}
+
+.song-finder-row .song-finder-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.song-finder-search-btn {
+  margin-top: 0;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+}
+
+.song-finder-status {
+  font-size: 0.85rem;
+  color: #a1a6b0;
+  min-height: 1em;
+}
+
+.song-finder-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.song-finder-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+  color: #f5f5f5;
+  background: #18181d;
+  border: 1px solid #2c2c33;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.song-finder-result:hover {
+  border-color: #4ade80;
+}
+
+.song-finder-result-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.song-finder-result-sub {
+  font-size: 0.75rem;
+  color: #868c97;
+}
+
+.song-finder-or {
+  margin: 4px 0 0;
 }

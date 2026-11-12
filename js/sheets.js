@@ -285,12 +285,89 @@ refreshSheetSongOptions('built-0');
     if (!input.value.trim()) { event.preventDefault(); input.focus(); }
   }));
 
-  // Enter key: open Ultimate Guitar (the biggest chord library) for the typed song.
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
+  // --- In-app search: our Cloudflare Worker fetches the chart and returns it in the app's format ---
+  const CHORD_API = 'https://guitar-app-chords.aimax-sms.workers.dev';
+  const searchBtn = document.getElementById('songFinderSearchBtn');
+  const statusEl = document.getElementById('songFinderStatus');
+  const resultsEl = document.getElementById('songFinderResults');
+
+  function setStatus(text) { statusEl.textContent = text; }
+
+  async function callApi(path) {
+    const res = await fetch(CHORD_API + path);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+    return data;
+  }
+
+  async function runSearch() {
     const query = input.value.trim();
     if (!query) { input.focus(); return; }
-    window.open(buildUrl.ug(query), '_blank', 'noopener');
+    input.blur();
+    resultsEl.innerHTML = '';
+    setStatus('Searching…');
+    searchBtn.disabled = true;
+    try {
+      const { results } = await callApi('/search?q=' + encodeURIComponent(query));
+      if (!results.length) {
+        setStatus('No chord charts found. Try adding the artist, or use the links below.');
+        return;
+      }
+      setStatus(`${results.length} result${results.length === 1 ? '' : 's'} — tap one to load it`);
+      results.forEach((r) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'song-finder-result';
+        const main = document.createElement('span');
+        main.className = 'song-finder-result-title';
+        main.textContent = `${r.title} — ${r.artist}`;
+        const sub = document.createElement('span');
+        sub.className = 'song-finder-result-sub';
+        const bits = [r.source];
+        if (r.version) bits.push(`version ${r.version}`);
+        if (r.rating) bits.push(`★ ${r.rating}`);
+        if (r.votes) bits.push(`${r.votes.toLocaleString()} votes`);
+        sub.textContent = bits.join(' · ');
+        btn.appendChild(main);
+        btn.appendChild(sub);
+        btn.addEventListener('click', () => loadChart(r));
+        resultsEl.appendChild(btn);
+      });
+    } catch (err) {
+      setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
+    } finally {
+      searchBtn.disabled = false;
+    }
+  }
+
+  async function loadChart(result) {
+    setStatus(`Loading ${result.title}…`);
+    try {
+      const chart = await callApi('/song?url=' + encodeURIComponent(result.url));
+      const saved = addMySong({
+        title: chart.title || result.title,
+        artist: chart.artist || result.artist,
+        key: chart.key || '?',
+        capo: chart.capo || 0,
+        tuning: chart.tuning || 'Standard',
+        lines: chart.lines,
+        tabs: [],
+        source: chart.source,
+        sourceUrl: chart.sourceUrl,
+      });
+      resultsEl.innerHTML = '';
+      setStatus(`Saved "${saved.title}" to My Songs.`);
+      refreshSheetSongOptions(saved.id);
+      elSheetSelect.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      setStatus(`Couldn't load that chart (${err.message}). Try another result.`);
+    }
+  }
+
+  searchBtn.addEventListener('click', runSearch);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runSearch();
   });
   updateLinks();
 })();

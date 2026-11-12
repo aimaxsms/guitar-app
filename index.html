@@ -98,15 +98,22 @@
 
       <form id="songFinderForm" class="song-finder" action="javascript:void(0)" onsubmit="return false;">
         <label for="songFinderInput" class="song-finder-label">Find chords for any song</label>
-        <input id="songFinderInput" class="song-finder-input" type="search"
-               placeholder="Song name + artist, e.g. Wonderwall Oasis" autocomplete="off" />
+        <div class="song-finder-row">
+          <input id="songFinderInput" class="song-finder-input" type="search"
+                 placeholder="Song name, e.g. Wonderwall" autocomplete="off" />
+          <button id="songFinderSearchBtn" type="button" class="start-btn song-finder-search-btn">Search</button>
+        </div>
+        <div id="songFinderStatus" class="song-finder-status"></div>
+        <div id="songFinderResults" class="song-finder-results"></div>
+        <p class="sheet-hint song-finder-or">Or open it on:</p>
         <div class="song-finder-links">
           <a data-site="ug" class="start-btn song-finder-link" href="https://www.ultimate-guitar.com/" target="_blank" rel="noopener">Ultimate Guitar</a>
           <a data-site="chordify" class="start-btn secondary-btn song-finder-link" href="https://chordify.net/" target="_blank" rel="noopener">Chordify</a>
           <a data-site="songsterr" class="start-btn secondary-btn song-finder-link" href="https://www.songsterr.com/" target="_blank" rel="noopener">Songsterr (tabs)</a>
           <a data-site="youtube" class="start-btn secondary-btn song-finder-link" href="https://www.youtube.com/" target="_blank" rel="noopener">YouTube lesson</a>
         </div>
-        <p class="sheet-hint">Free — opens the song's chord chart on that site in a new tab.</p>
+        <p class="sheet-hint">Search pulls charts from Ultimate Guitar and LaCuerda (Spanish songs) into
+          the app and saves them to My Songs on this device only.</p>
       </form>
 
       <select id="sheetSelect" class="tuning-select"></select>
