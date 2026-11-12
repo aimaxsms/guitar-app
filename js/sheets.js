@@ -165,26 +165,201 @@ function renderSheet(song) {
   });
 }
 
+// ---------- Readable tab rendering ----------
+// Text tab is re-flowed bar by bar to fit the screen (no sideways scrolling), string names are
+// repeated on every line, fret numbers are bold and bright, and the dashes fade into the background.
+
+const STAFF_LINE_RE = /^\s*([A-Ga-g][#b]?)\s*\|/;
+let tabCharWidth = 0;
+
+function measureTabCharWidth() {
+  const probe = document.createElement('span');
+  probe.className = 'tabx-row';
+  probe.style.position = 'absolute';
+  probe.style.visibility = 'hidden';
+  probe.textContent = '-'.repeat(40);
+  elTabContent.appendChild(probe);
+  const w = probe.getBoundingClientRect().width / 40;
+  probe.remove();
+  return w || 9;
+}
+
+// Splits a tab section's text into plain-text paragraphs and staff blocks (aligned rows).
+function parseTabText(text) {
+  const lines = text.replace(/\r/g, '').split('\n');
+  const parts = [];
+  let i = 0;
+  while (i < lines.length) {
+    if (STAFF_LINE_RE.test(lines[i])) {
+      const staff = [];
+      while (i < lines.length && STAFF_LINE_RE.test(lines[i])) staff.push(lines[i++]);
+      // A short line right above the staff (chord names, PM) belongs to it, column-aligned.
+      let annot = null;
+      const prev = parts[parts.length - 1];
+      if (prev && prev.type === 'text' && prev.lines.length && prev.lines[prev.lines.length - 1].trim()) {
+        annot = prev.lines.pop();
+        if (!prev.lines.length) parts.pop();
+      }
+      parts.push({ type: 'staff', staff, annot });
+    } else {
+      const prev = parts[parts.length - 1];
+      if (prev && prev.type === 'text') prev.lines.push(lines[i]);
+      else parts.push({ type: 'text', lines: [lines[i]] });
+      i++;
+    }
+  }
+  return parts;
+}
+
+// Breaks a staff block into bars: [{ annot: '...', rows: ['---3--', ...] }]
+function staffToBars(block) {
+  const firstBar = block.staff.map((l) => l.indexOf('|'));
+  const labels = block.staff.map((l, s) => l.slice(0, firstBar[s]).trim());
+  const bodies = block.staff.map((l, s) => l.slice(firstBar[s] + 1));
+  const annotBody = block.annot ? block.annot.slice(firstBar[0] + 1) : '';
+  const ref = bodies[0];
+  const cuts = [];
+  for (let c = 0; c < ref.length; c++) if (ref[c] === '|') cuts.push(c);
+  if (!cuts.length || cuts[cuts.length - 1] < ref.length - 1) cuts.push(ref.length);
+  const bars = [];
+  let start = 0;
+  cuts.forEach((cut) => {
+    if (cut > start) {
+      bars.push({
+        annot: annotBody.slice(start, cut),
+        rows: bodies.map((b) => b.slice(start, cut).replace(/\|/g, '-')),
+      });
+    }
+    start = cut + 1;
+  });
+  return { labels, bars };
+}
+
+// A bar wider than the screen gets cut where every string is empty, so no note is split.
+function splitWideBar(bar, maxLen) {
+  const out = [];
+  let rest = bar;
+  while (rest.rows[0].length > maxLen) {
+    let cut = maxLen;
+    while (cut > maxLen / 2 && !rest.rows.every((r) => r[cut] === '-' || r[cut] === undefined || r[cut] === ' ')) cut--;
+    if (cut <= maxLen / 2) cut = maxLen;
+    out.push({ annot: rest.annot.slice(0, cut), rows: rest.rows.map((r) => r.slice(0, cut)) });
+    rest = { annot: rest.annot.slice(cut), rows: rest.rows.map((r) => r.slice(cut)) };
+  }
+  out.push(rest);
+  return out;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function colorizeTabRow(row) {
+  return escapeHtml(row).replace(/(-+)|(\d+)|(&lt;|&gt;|[hpbr\/\\~x()*^.=s]+)/g, (m, dash, num, tech) => {
+    if (dash) return `<span class="tabx-d">${dash}</span>`;
+    if (num) return `<b class="tabx-n">${num}</b>`;
+    return `<i class="tabx-t">${tech}</i>`;
+  });
+}
+
+function renderStaffBlock(container, block, capacity) {
+  const { labels, bars } = staffToBars(block);
+  const labelW = Math.max(1, ...labels.map((l) => l.length));
+  const room = Math.max(12, capacity - labelW - 2);
+  const pieces = [];
+  bars.forEach((bar) => pieces.push(...splitWideBar(bar, room - 1)));
+
+  // Greedily pack bars into lines that fit the screen.
+  const systems = [];
+  let line = [];
+  let used = 0;
+  pieces.forEach((p) => {
+    const w = p.rows[0].length + 1;
+    if (line.length && used + w > room) {
+      systems.push(line);
+      line = [];
+      used = 0;
+    }
+    line.push(p);
+    used += w;
+  });
+  if (line.length) systems.push(line);
+
+  systems.forEach((sys) => {
+    const el = document.createElement('div');
+    el.className = 'tabx-system';
+    const annot = sys.map((p) => p.annot.padEnd(p.rows[0].length, ' ') + ' ').join('');
+    if (annot.trim()) {
+      const a = document.createElement('div');
+      a.className = 'tabx-row tabx-annot';
+      a.textContent = ' '.repeat(labelW + 1) + annot.replace(/\s+$/, '');
+      el.appendChild(a);
+    }
+    labels.forEach((label, s) => {
+      const r = document.createElement('div');
+      r.className = 'tabx-row';
+      const body = sys.map((p) => colorizeTabRow(p.rows[s] || '')).join('<span class="tabx-bar">|</span>');
+      r.innerHTML =
+        `<span class="tabx-label">${escapeHtml(label.padEnd(labelW, ' '))}</span>` +
+        `<span class="tabx-bar">|</span>${body}<span class="tabx-bar">|</span>`;
+      el.appendChild(r);
+    });
+    container.appendChild(el);
+  });
+}
+
+let lastRenderedTabSong = null;
+
 function renderTabs(song) {
+  lastRenderedTabSong = song;
   elTabContent.innerHTML = '';
   if (!song.tabs || !song.tabs.length) {
     elTabContent.innerHTML = '<p class="chord-panel-error">No tab for this song yet.</p>';
     return;
   }
+  if (elTabContent.style.display === 'none') return; // drawn when the Tab view is opened (needs its width)
+
+  tabCharWidth = measureTabCharWidth();
+  const capacity = Math.floor((elTabContent.clientWidth - 24) / tabCharWidth);
+
+  if (song.track) {
+    const t = document.createElement('div');
+    t.className = 'tabx-track';
+    t.textContent = `Part: ${song.track}`;
+    elTabContent.appendChild(t);
+  }
+
   song.tabs.forEach((section) => {
     const wrap = document.createElement('div');
     wrap.className = 'tab-section';
     const label = document.createElement('div');
     label.className = 'tab-section-label';
     label.textContent = section.label;
-    const pre = document.createElement('pre');
-    pre.className = 'tab-block';
-    pre.textContent = section.tab;
     wrap.appendChild(label);
-    wrap.appendChild(pre);
+
+    parseTabText(section.tab).forEach((part) => {
+      if (part.type === 'staff') {
+        renderStaffBlock(wrap, part, capacity);
+      } else {
+        const text = part.lines.join('\n').replace(/^\n+|\n+$/g, '');
+        if (!text.trim()) return;
+        const p = document.createElement('pre');
+        p.className = 'tabx-text';
+        p.textContent = text;
+        wrap.appendChild(p);
+      }
+    });
     elTabContent.appendChild(wrap);
   });
 }
+
+let tabResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(tabResizeTimer);
+  tabResizeTimer = setTimeout(() => {
+    if (lastRenderedTabSong && elTabContent.style.display !== 'none') renderTabs(lastRenderedTabSong);
+  }, 150);
+});
 
 // --- "Chords in this song" bar: one easy diagram per chord, can be pinned to the top while scrolling ---
 const elSongChordBar = document.getElementById('songChordBar');
@@ -283,6 +458,8 @@ function setViewMode(mode) {
   elTabContent.style.display = mode === 'tab' ? '' : 'none';
   elLyricsViewBtn.classList.toggle('active', mode === 'lyrics');
   elTabViewBtn.classList.toggle('active', mode === 'tab');
+  // Tabs are laid out to the screen width, so draw them once the Tab view is visible.
+  if (mode === 'tab' && lastRenderedTabSong) renderTabs(lastRenderedTabSong);
 }
 
 function openChordPanel(chordLabel) {
@@ -387,7 +564,7 @@ refreshSheetSongOptions('built-0');
   const videoEl = document.getElementById('songFinderVideo');
   const SECTIONS = [
     { key: 'chords', title: 'Chords & Lyrics', hint: 'Tap to save to My Songs' },
-    { key: 'tabs', title: 'Tabs', hint: 'Ultimate Guitar tabs save to My Songs · Songsterr opens its tab player' },
+    { key: 'tabs', title: 'Tabs', hint: 'Tap to save to My Songs and open the Tab view' },
     { key: 'videos', title: 'Video Lessons', hint: 'Tap to watch here' },
   ];
   const SECTION_PREVIEW = 5;
@@ -557,6 +734,7 @@ refreshSheetSongOptions('built-0');
         tabs: chart.tabs || [],
         source: chart.source,
         sourceUrl: chart.sourceUrl,
+        track: chart.track || '',
       });
       const isTab = !(chart.lines && chart.lines.length) && saved.tabs.length;
       setStatus(`Saved "${saved.title}"${isTab ? ' (tab)' : ''} to My Songs.`);

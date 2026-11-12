@@ -1400,3 +1400,87 @@ a.song-finder-result {
 .song-chord-bar.pinned .song-chord-card svg {
   width: 58px;
 }
+
+/* --- Readable tabs: re-flowed to the screen, bright fret numbers, faded dashes --- */
+.tab-content {
+  max-width: 900px;
+}
+
+.tab-section {
+  margin-bottom: 22px;
+}
+
+.tab-section-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: #0e1b36;
+  background: #edeae3;
+  border-radius: 999px;
+}
+
+.tabx-track {
+  margin-bottom: 12px;
+  font-size: 0.78rem;
+  color: #9fb0cc;
+}
+
+.tabx-system {
+  margin-bottom: 12px;
+  padding: 8px 10px 10px;
+  background: #132447;
+  border: 1px solid #263f72;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabx-row {
+  display: block;
+  font-family: "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
+  font-size: 15px;
+  line-height: 1.45;
+  white-space: pre;
+  color: #d6deec;
+}
+
+.tabx-annot {
+  font-weight: 700;
+  color: #edeae3;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tabx-label {
+  color: #8394b3;
+  font-weight: 600;
+}
+
+.tabx-d {
+  color: #31497c;
+}
+
+.tabx-bar {
+  color: #5a72a3;
+}
+
+.tabx-n {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.tabx-t {
+  font-style: normal;
+  font-weight: 700;
+  color: #7fb2ff;
+}
+
+.tabx-text {
+  margin: 0 0 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #b4c1d9;
+  white-space: pre-wrap;
+}

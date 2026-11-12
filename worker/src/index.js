@@ -286,7 +286,7 @@ export function parseSongsterrSearch(list) {
       out.push({ ...common, category: 'chords', type: 'Chords', url: `https://www.songsterr.com/a/wsa/song-chords-s${s.songId}` });
     }
     if (s.hasPlayer !== false) {
-      out.push({ ...common, category: 'tabs', type: 'Tab (Songsterr player)', external: true, url: `https://www.songsterr.com/a/wsa/song-tab-s${s.songId}` });
+      out.push({ ...common, category: 'tabs', type: 'Tab', url: `https://www.songsterr.com/a/wsa/song-tab-s${s.songId}` });
     }
   });
   return out;
@@ -332,6 +332,131 @@ export function parseSongsterrSong(html, url) {
     source: 'Songsterr',
     sourceUrl: url,
     lines,
+  };
+}
+
+// ---------- Songsterr tabs: note data from Songsterr's CDN, turned into plain text tab ----------
+
+const SONGSTERR_CDN = 'https://dqsljvtekg760.cloudfront.net';
+const NOTE_NAMES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const BEAT_WIDTH = { 1: 8, 2: 6, 4: 4, 8: 3, 16: 2, 32: 2, 64: 2 };
+
+function songsterrState(html) {
+  const m = html.match(/<script id="state" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!m) throw new Error('Songsterr page format not recognised');
+  return JSON.parse(m[1]);
+}
+
+// Picks the guitar track most people look at (usually the main rhythm or lead part).
+function pickSongsterrTrack(meta) {
+  const tracks = meta.tracks || [];
+  const isGuitar = (t) => t && /guitar/i.test(t.instrument || '') && !/bass/i.test(t.instrument || '');
+  if (isGuitar(tracks[meta.popularTrackGuitar])) return meta.popularTrackGuitar;
+  let best = -1;
+  tracks.forEach((t, i) => { if (isGuitar(t) && (best < 0 || (t.views || 0) > (tracks[best].views || 0))) best = i; });
+  return best >= 0 ? best : meta.defaultTrack || 0;
+}
+
+function stringLabels(tuning) {
+  const names = tuning.map((midi) => NOTE_NAMES_SHARP[((midi % 12) + 12) % 12]);
+  // Standard tab writes the top (highest) string in lowercase so e and E differ.
+  if (names.length && names[0] === 'E' && names[names.length - 1] === 'E') names[0] = 'e';
+  const w = Math.max(...names.map((n) => n.length));
+  return names.map((n) => n.padEnd(w, ' '));
+}
+
+export function songsterrPartToTabs(part) {
+  const strings = part.strings || (part.tuning || []).length || 6;
+  const labels = stringLabels((part.tuning || []).slice(0, strings));
+  const gutter = labels[0].length;
+  const sections = [];
+  let current = null;
+  const startSection = (label) => {
+    current = { label, annot: ' '.repeat(gutter) + ' ', rows: labels.map((l) => l + '|') };
+    sections.push(current);
+  };
+  startSection(part.name ? 'Start' : 'Tab');
+
+  // Flatten beats (first voice) so hammer-on/pull-off can look at the next note on the string.
+  const flat = [];
+  part.measures.forEach((m, mi) => {
+    const beats = (m.voices && m.voices[0] && m.voices[0].beats) || [];
+    beats.forEach((b) => flat.push({ b, mi }));
+  });
+  const nextFret = (fromIndex, s) => {
+    for (let i = fromIndex + 1; i < flat.length && i < fromIndex + 8; i++) {
+      const n = (flat[i].b.notes || []).find((x) => x.string === s && !x.rest);
+      if (n) return n.fret;
+    }
+    return null;
+  };
+
+  let flatIndex = 0;
+  part.measures.forEach((m, mi) => {
+    if (m.marker && m.marker.text) {
+      if (current.rows[0].length > gutter + 1) startSection(m.marker.text);
+      else current.label = m.marker.text;
+    }
+    const beats = (m.voices && m.voices[0] && m.voices[0].beats) || [];
+    if (!beats.length) {
+      current.annot += ' '.repeat(9);
+      current.rows = current.rows.map((r) => r + '-'.repeat(8) + '|');
+      return;
+    }
+    beats.forEach((b) => {
+      const tokens = new Array(strings).fill('');
+      (b.notes || []).forEach((n) => {
+        if (n.rest || n.tie || n.string == null || n.string >= strings) return;
+        let t = n.dead ? 'x' : String(n.fret);
+        if (n.harmonic) t = `<${n.harmonicFret != null ? n.harmonicFret : n.fret}>`;
+        if (n.ghost) t = `(${t})`;
+        if (n.bend) t += 'b';
+        if (n.slide) t += n.slide === 'downwards' ? '\\' : '/';
+        if (n.hp) {
+          const nf = nextFret(flatIndex, n.string);
+          if (nf != null) t += nf > n.fret ? 'h' : 'p';
+        }
+        if (n.leftHandVibrato) t += '~';
+        tokens[n.string] = t;
+      });
+      let annot = b.chord && b.chord.text ? b.chord.text : b.palmMute ? 'PM' : '';
+      const base = (BEAT_WIDTH[b.type] || 3) + (b.dots ? 1 : 0);
+      const width = Math.max(base, ...tokens.map((t) => t.length + 1), annot.length + 1);
+      current.annot += annot.padEnd(width, ' ');
+      current.rows = current.rows.map((r, s) => r + tokens[s].padEnd(width, '-'));
+      flatIndex++;
+    });
+    current.annot += ' ';
+    current.rows = current.rows.map((r) => r + '|');
+  });
+
+  return sections
+    .filter((s) => s.rows[0].length > gutter + 1)
+    .map((s) => ({
+      label: s.label,
+      tab: (s.annot.trim() ? [s.annot.replace(/\s+$/, '')] : []).concat(s.rows).join('\n'),
+    }));
+}
+
+export async function loadSongsterrTab(html, url, ctx) {
+  const state = songsterrState(html);
+  const meta = state.meta && state.meta.current;
+  if (!meta || !meta.image) throw new Error('This Songsterr song has no tab data');
+  const trackIndex = pickSongsterrTrack(meta);
+  const track = (meta.tracks || [])[trackIndex] || {};
+  const partUrl = `${SONGSTERR_CDN}/${meta.songId}/${meta.revisionId}/${meta.image}/${trackIndex}.json`;
+  const part = JSON.parse(await fetchPage(partUrl, ctx));
+  return {
+    title: meta.title,
+    artist: meta.artist,
+    key: '?',
+    capo: Number(part.capo) || 0,
+    tuning: 'Standard',
+    source: 'Songsterr',
+    sourceUrl: url,
+    track: track.name || track.instrument || '',
+    lines: [],
+    tabs: songsterrPartToTabs(part),
   };
 }
 
@@ -495,6 +620,9 @@ export default {
         }
         if (target.hostname === 'acordes.lacuerda.net') {
           return json(parseLacuerdaSong(await fetchPage(target.href, ctx), target.href), 200, origin);
+        }
+        if (target.hostname === 'www.songsterr.com' && /^\/a\/wsa\/[\w-]+-tab-s\d+$/.test(target.pathname)) {
+          return json(await loadSongsterrTab(await fetchPage(target.href, ctx), target.href, ctx), 200, origin);
         }
         if (target.hostname === 'www.songsterr.com' && /^\/a\/wsa\/[\w-]+-chords-s\d+$/.test(target.pathname)) {
           return json(parseSongsterrSong(await fetchPage(target.href, ctx), target.href), 200, origin);
