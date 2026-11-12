@@ -300,8 +300,14 @@ refreshSheetSongOptions('built-0');
     return data;
   }
 
-  const filtersEl = document.getElementById('songFinderFilters');
   const videoEl = document.getElementById('songFinderVideo');
+  const SECTIONS = [
+    { key: 'chords', title: 'Chords & Lyrics', hint: 'Tap to save to My Songs' },
+    { key: 'tabs', title: 'Tabs', hint: 'Ultimate Guitar tabs save to My Songs · Songsterr opens its tab player' },
+    { key: 'videos', title: 'Video Lessons', hint: 'Tap to watch here' },
+  ];
+  const SECTION_PREVIEW = 5;
+  const expanded = {};
   const SOURCE_CLASS = {
     'Ultimate Guitar': 'src-ug',
     Songsterr: 'src-songsterr',
@@ -309,7 +315,6 @@ refreshSheetSongOptions('built-0');
     YouTube: 'src-youtube',
   };
   let lastResults = [];
-  let activeFilter = 'All';
 
   function formatViews(n) {
     if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M views';
@@ -317,31 +322,52 @@ refreshSheetSongOptions('built-0');
     return n + ' views';
   }
 
-  function renderFilters() {
-    filtersEl.innerHTML = '';
-    const counts = {};
-    lastResults.forEach((r) => { counts[r.source] = (counts[r.source] || 0) + 1; });
-    ['All', ...Object.keys(SOURCE_CLASS).filter((s) => counts[s])].forEach((name) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'song-finder-chip' + (name === activeFilter ? ' active' : '');
-      chip.textContent = name === 'All' ? `All (${lastResults.length})` : `${name} (${counts[name]})`;
-      chip.addEventListener('click', () => {
-        activeFilter = name;
-        renderFilters();
-        renderResults();
-      });
-      filtersEl.appendChild(chip);
+  function renderResults() {
+    resultsEl.innerHTML = '';
+    SECTIONS.forEach((section) => {
+      const items = lastResults.filter((r) => r.category === section.key);
+      const wrap = document.createElement('div');
+      wrap.className = 'song-finder-section';
+
+      const head = document.createElement('div');
+      head.className = 'song-finder-section-head';
+      const h = document.createElement('h3');
+      h.textContent = `${section.title} (${items.length})`;
+      const hint = document.createElement('span');
+      hint.className = 'song-finder-section-hint';
+      hint.textContent = items.length ? section.hint : 'Nothing found';
+      head.appendChild(h);
+      head.appendChild(hint);
+      wrap.appendChild(head);
+
+      const shown = expanded[section.key] ? items : items.slice(0, SECTION_PREVIEW);
+      shown.forEach((r) => wrap.appendChild(renderResult(r)));
+
+      if (items.length > SECTION_PREVIEW) {
+        const more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'song-finder-more';
+        more.textContent = expanded[section.key] ? 'Show less' : `Show all ${items.length}`;
+        more.addEventListener('click', () => {
+          expanded[section.key] = !expanded[section.key];
+          renderResults();
+        });
+        wrap.appendChild(more);
+      }
+      resultsEl.appendChild(wrap);
     });
   }
 
-  function renderResults() {
-    resultsEl.innerHTML = '';
-    lastResults
-      .filter((r) => activeFilter === 'All' || r.source === activeFilter)
-      .forEach((r) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
+  function renderResult(r) {
+        // External results (Songsterr's tab player) are real new-tab links so they open reliably.
+        const btn = document.createElement(r.external ? 'a' : 'button');
+        if (r.external) {
+          btn.href = r.url;
+          btn.target = '_blank';
+          btn.rel = 'noopener';
+        } else {
+          btn.type = 'button';
+        }
         btn.className = 'song-finder-result';
 
         if (r.videoId) {
@@ -372,14 +398,14 @@ refreshSheetSongOptions('built-0');
         if (r.rating) bits.push(`★ ${r.rating}`);
         if (r.votes) bits.push(`${r.votes.toLocaleString()} votes`);
         if (r.views) bits.push(formatViews(r.views));
+        if (r.external) bits.push('opens Songsterr ↗');
         sub.appendChild(document.createTextNode(' ' + bits.join(' · ')));
         textWrap.appendChild(main);
         textWrap.appendChild(sub);
         btn.appendChild(textWrap);
 
-        btn.addEventListener('click', () => (r.videoId ? playVideo(r) : loadChart(r)));
-        resultsEl.appendChild(btn);
-      });
+        if (!r.external) btn.addEventListener('click', () => (r.videoId ? playVideo(r) : loadChart(r)));
+        return btn;
   }
 
   function playVideo(r) {
@@ -414,19 +440,17 @@ refreshSheetSongOptions('built-0');
     if (!query) { input.focus(); return; }
     input.blur();
     resultsEl.innerHTML = '';
-    filtersEl.innerHTML = '';
     setStatus('Searching Ultimate Guitar, Songsterr, LaCuerda and YouTube…');
     searchBtn.disabled = true;
     try {
       const { results } = await callApi('/search?q=' + encodeURIComponent(query));
       lastResults = results;
-      activeFilter = 'All';
+      SECTIONS.forEach((s) => { expanded[s.key] = false; });
       if (!results.length) {
         setStatus('Nothing found. Try adding the artist, or use the links below.');
         return;
       }
-      setStatus('Best matches first — tap a chart to save it, or a video to watch it here');
-      renderFilters();
+      setStatus('Best matches first in each section');
       renderResults();
     } catch (err) {
       setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
@@ -445,14 +469,15 @@ refreshSheetSongOptions('built-0');
         key: chart.key || '?',
         capo: chart.capo || 0,
         tuning: chart.tuning || 'Standard',
-        lines: chart.lines,
-        tabs: [],
+        lines: chart.lines && chart.lines.length ? chart.lines : ['(Tab only — tap the Tab button above)'],
+        tabs: chart.tabs || [],
         source: chart.source,
         sourceUrl: chart.sourceUrl,
       });
-      resultsEl.innerHTML = '';
-      setStatus(`Saved "${saved.title}" to My Songs.`);
+      const isTab = !(chart.lines && chart.lines.length) && saved.tabs.length;
+      setStatus(`Saved "${saved.title}"${isTab ? ' (tab)' : ''} to My Songs.`);
       refreshSheetSongOptions(saved.id);
+      if (isTab) setViewMode('tab');
       elSheetSelect.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       setStatus(`Couldn't load that chart (${err.message}). Try another result.`);

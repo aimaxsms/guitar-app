@@ -1247,3 +1247,49 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.song-finder-results {
+  max-height: none;
+  overflow: visible;
+  gap: 16px;
+}
+
+.song-finder-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.song-finder-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #26262c;
+}
+
+.song-finder-section-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #f5f5f5;
+}
+
+.song-finder-section-hint {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+a.song-finder-result {
+  text-decoration: none;
+}
+
+.song-finder-more {
+  align-self: center;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: #4ade80;
+  background: none;
+  border: 1px solid #2c2c33;
+  border-radius: 999px;
+  cursor: pointer;
+}
