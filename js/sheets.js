@@ -186,8 +186,91 @@ function renderTabs(song) {
   });
 }
 
+// --- "Chords in this song" bar: one easy diagram per chord, can be pinned to the top while scrolling ---
+const elSongChordBar = document.getElementById('songChordBar');
+const PIN_CHORDS_KEY = 'guitarApp_pinChords';
+
+function isChordBarPinned() {
+  try { return localStorage.getItem(PIN_CHORDS_KEY) === '1'; } catch (err) { return false; }
+}
+
+function setChordBarPinned(pinned) {
+  try { localStorage.setItem(PIN_CHORDS_KEY, pinned ? '1' : '0'); } catch (err) { /* private mode: just don't remember */ }
+  elSongChordBar.classList.toggle('pinned', pinned);
+  const btn = elSongChordBar.querySelector('.song-chord-pin');
+  if (btn) {
+    btn.textContent = pinned ? '📌 Pinned' : '📌 Pin';
+    btn.classList.toggle('active', pinned);
+    btn.setAttribute('aria-pressed', String(pinned));
+  }
+}
+
+function songChordList(song) {
+  const seen = new Set();
+  const chords = [];
+  song.lines.forEach((line) => {
+    parseSheetLine(line).forEach((seg) => {
+      if (seg.type === 'chord' && !seen.has(seg.value)) {
+        seen.add(seg.value);
+        chords.push(seg.value);
+      }
+    });
+  });
+  return chords;
+}
+
+function easiestChordSvg(chordLabel) {
+  // Slash chords (D/F#) and unusual names: fall back to the plain chord before the slash.
+  const parsed = parseChordName(chordLabel) || parseChordName(chordLabel.split('/')[0]);
+  if (!parsed) return null;
+  const positions = getChordPositions(parsed.root, parsed.quality);
+  return positions.length ? buildChordDiagramSvg(positions[0]) : null;
+}
+
+function renderChordBar(song) {
+  elSongChordBar.innerHTML = '';
+  const chords = songChordList(song);
+  if (!chords.length) {
+    elSongChordBar.style.display = 'none';
+    return;
+  }
+  elSongChordBar.style.display = '';
+
+  const head = document.createElement('div');
+  head.className = 'song-chord-bar-head';
+  const title = document.createElement('span');
+  title.textContent = `Chords in this song (${chords.length})`;
+  const pinBtn = document.createElement('button');
+  pinBtn.type = 'button';
+  pinBtn.className = 'song-chord-pin';
+  pinBtn.addEventListener('click', () => setChordBarPinned(!isChordBarPinned()));
+  head.appendChild(title);
+  head.appendChild(pinBtn);
+
+  const row = document.createElement('div');
+  row.className = 'song-chord-row';
+  chords.forEach((name) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'song-chord-card';
+    const svg = easiestChordSvg(name);
+    if (svg) card.innerHTML = svg;
+    const label = document.createElement('span');
+    label.className = 'song-chord-card-name';
+    label.textContent = name;
+    card.appendChild(label);
+    card.addEventListener('click', () => openChordPanel(name));
+    row.appendChild(card);
+  });
+
+  elSongChordBar.appendChild(head);
+  elSongChordBar.appendChild(row);
+  setChordBarPinned(isChordBarPinned());
+}
+
 function renderSong(song) {
   renderMeta(song);
+  renderChordBar(song);
   renderSheet(song);
   renderTabs(song);
   elTabViewBtn.disabled = !song.tabs || !song.tabs.length;
@@ -196,6 +279,7 @@ function renderSong(song) {
 function setViewMode(mode) {
   viewMode = mode;
   elSheetContent.style.display = mode === 'lyrics' ? '' : 'none';
+  elSongChordBar.classList.toggle('hidden-in-tab', mode !== 'lyrics');
   elTabContent.style.display = mode === 'tab' ? '' : 'none';
   elLyricsViewBtn.classList.toggle('active', mode === 'lyrics');
   elTabViewBtn.classList.toggle('active', mode === 'tab');

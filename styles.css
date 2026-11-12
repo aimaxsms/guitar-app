@@ -329,6 +329,8 @@ h1 {
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
+  /* clip (unlike hidden) doesn't create a scroll box, so the pinned chord bar can stick */
+  overflow: clip;
 }
 
 .sheet-content {
@@ -1303,3 +1305,98 @@ a.song-finder-result {
   box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.3);
 }
 .songid-saved { color: #4ade80; }
+
+/* --- Chords-in-this-song bar (pinnable) --- */
+.song-chord-bar {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #132447;
+  border: 1px solid #263f72;
+  border-radius: 14px;
+  text-align: left;
+}
+
+.song-chord-bar.hidden-in-tab {
+  display: none !important;
+}
+
+.song-chord-bar.pinned {
+  position: sticky;
+  top: 8px;
+  z-index: 20;
+  background: rgba(19, 36, 71, 0.97);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.song-chord-bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b4c1d9;
+}
+
+.song-chord-pin {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #edeae3;
+  background: #1b3060;
+  border: 1px solid #2d4880;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.song-chord-pin.active {
+  color: #0e1b36;
+  background: #edeae3;
+  border-color: #edeae3;
+}
+
+.song-chord-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.song-chord-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  background: #172a52;
+  border: 1px solid #263f72;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.song-chord-card:hover {
+  border-color: #edeae3;
+}
+
+.song-chord-card svg {
+  width: 70px;
+  height: auto;
+}
+
+.song-chord-card-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #edeae3;
+}
+
+.song-chord-bar.pinned .song-chord-card svg {
+  width: 58px;
+}
