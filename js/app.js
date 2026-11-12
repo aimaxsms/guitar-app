@@ -13,7 +13,7 @@ const DIAL_CENTER_Y = 90;
 const DIAL_RADIUS = 75;
 const DIAL_MAX_CENTS = 50;
 const DIAL_MAX_ANGLE = 35;
-const IDLE_COLOR = '#555';
+const IDLE_COLOR = '#5a72a3';
 
 let elNeedleLine = null;
 let elNeedleBadge = null;
@@ -30,8 +30,8 @@ function buildGauge() {
     <defs>
       <clipPath id="dialClip"><circle cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="${DIAL_RADIUS}" /></clipPath>
       <radialGradient id="dialBg" cx="40%" cy="35%" r="75%">
-        <stop offset="0%" stop-color="#1c1c1e" />
-        <stop offset="100%" stop-color="#0a0a0a" />
+        <stop offset="0%" stop-color="#1b3060" />
+        <stop offset="100%" stop-color="#0e1b36" />
       </radialGradient>
       <filter id="needleShadow" x="-60%" y="-60%" width="220%" height="220%">
         <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.55" />
@@ -43,21 +43,21 @@ function buildGauge() {
 
   svg += `<g clip-path="url(#dialClip)" opacity="0.55">`;
   for (let gx = DIAL_CENTER_X - DIAL_RADIUS; gx <= DIAL_CENTER_X + DIAL_RADIUS; gx += 15) {
-    svg += `<line x1="${gx}" y1="${DIAL_CENTER_Y - DIAL_RADIUS}" x2="${gx}" y2="${DIAL_CENTER_Y + DIAL_RADIUS}" stroke="#2a2a2a" stroke-width="1" />`;
+    svg += `<line x1="${gx}" y1="${DIAL_CENTER_Y - DIAL_RADIUS}" x2="${gx}" y2="${DIAL_CENTER_Y + DIAL_RADIUS}" stroke="#22396a" stroke-width="1" />`;
   }
   for (let gy = DIAL_CENTER_Y - DIAL_RADIUS; gy <= DIAL_CENTER_Y + DIAL_RADIUS; gy += 15) {
-    svg += `<line x1="${DIAL_CENTER_X - DIAL_RADIUS}" y1="${gy}" x2="${DIAL_CENTER_X + DIAL_RADIUS}" y2="${gy}" stroke="#2a2a2a" stroke-width="1" />`;
+    svg += `<line x1="${DIAL_CENTER_X - DIAL_RADIUS}" y1="${gy}" x2="${DIAL_CENTER_X + DIAL_RADIUS}" y2="${gy}" stroke="#22396a" stroke-width="1" />`;
   }
   svg += `</g>`;
 
   for (let angle = 0; angle < 360; angle += 45) {
     const inner = dialPoint(DIAL_RADIUS - 8, angle);
     const outer = dialPoint(DIAL_RADIUS + 1, angle);
-    svg += `<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="#444" stroke-width="2" stroke-linecap="round" />`;
+    svg += `<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="#4a6396" stroke-width="2" stroke-linecap="round" />`;
   }
 
-  svg += `<circle cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="${DIAL_RADIUS}" fill="none" stroke="#3a3a3a" stroke-width="3" />`;
-  svg += `<circle cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="${DIAL_RADIUS + 4}" fill="none" stroke="#222" stroke-width="1" />`;
+  svg += `<circle cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="${DIAL_RADIUS}" fill="none" stroke="#2d4880" stroke-width="3" />`;
+  svg += `<circle cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="${DIAL_RADIUS + 4}" fill="none" stroke="#1b3060" stroke-width="1" />`;
 
   svg += `<line id="needleLine" x1="${DIAL_CENTER_X}" y1="${DIAL_CENTER_Y}" x2="${DIAL_CENTER_X}" y2="${DIAL_CENTER_Y + DIAL_RADIUS + 35}" stroke="${IDLE_COLOR}" stroke-width="3" stroke-linecap="round" filter="url(#needleShadow)" />`;
   svg += `<circle id="needleBadge" cx="${DIAL_CENTER_X}" cy="${DIAL_CENTER_Y}" r="18" fill="${IDLE_COLOR}" stroke="#000" stroke-opacity="0.25" stroke-width="2" filter="url(#needleShadow)" />`;
@@ -113,7 +113,7 @@ function buildHeadstock() {
 
     svg += `
       <g class="peg-label" data-index="${index}">
-        <rect class="peg-label-bg" x="${pos.x - pillWidth / 2}" y="${labelY - 12}" width="${pillWidth}" height="24" rx="12" fill="#1e1e1e" stroke="#333" stroke-width="1.5" />
+        <rect class="peg-label-bg" x="${pos.x - pillWidth / 2}" y="${labelY - 12}" width="${pillWidth}" height="24" rx="12" fill="#172a52" stroke="#2d4880" stroke-width="1.5" />
         <text class="peg-label-text" x="${pos.x}" y="${labelY + 5}" font-size="12" font-weight="700" fill="#f5f5f5" text-anchor="middle">?</text>
       </g>
     `;
@@ -145,8 +145,8 @@ function renderStringLabels(activeIndex, inTune) {
     const bg = g.querySelector('.peg-label-bg');
     text.textContent = `${name}${octave}`;
 
-    let fill = '#1e1e1e';
-    let stroke = i === focusedIndex ? '#9ca3af' : '#333';
+    let fill = '#172a52';
+    let stroke = i === focusedIndex ? '#9ca3af' : '#2d4880';
     let textColor = '#f5f5f5';
 
     if (i === activeIndex) {

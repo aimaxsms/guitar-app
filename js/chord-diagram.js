@@ -42,7 +42,7 @@ function buildChordDiagramSvg(position, labelMode = 'finger') {
     } else {
       const relative = fret - startFret;
       const y = DIAGRAM_TOP + (relative + 0.5) * FRET_GAP;
-      svg += `<circle cx="${x}" cy="${y}" r="7" fill="#4ade80" />`;
+      svg += `<circle cx="${x}" cy="${y}" r="7" fill="#edeae3" />`;
       if (labelMode === 'note') {
         const noteName = fretToNoteName(s, fret);
         svg += `<text x="${x}" y="${y + 3}" font-size="8" font-weight="700" fill="#121212" text-anchor="middle">${noteName}</text>`;

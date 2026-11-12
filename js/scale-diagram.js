@@ -41,7 +41,7 @@ function buildScaleDiagramSvg(strings) {
     const x = DIAGRAM_LEFT + s * STRING_GAP;
     notes.forEach(({ fret, isRoot, note }) => {
       const y = DIAGRAM_TOP + (fret + 0.5) * FRET_GAP;
-      svg += `<circle cx="${x}" cy="${y}" r="7" fill="${isRoot ? '#4ade80' : '#60a5fa'}" />`;
+      svg += `<circle cx="${x}" cy="${y}" r="7" fill="${isRoot ? '#edeae3' : '#60a5fa'}" />`;
       svg += `<text x="${x}" y="${y + 3}" font-size="8" font-weight="700" fill="#121212" text-anchor="middle">${note}</text>`;
     });
   });
