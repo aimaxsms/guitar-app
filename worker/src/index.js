@@ -535,15 +535,31 @@ function quality(r) {
   return 0.5; // LaCuerda shows no ratings
 }
 
+// Star rating adjusted for vote count: a handful of votes is pulled toward an average 3.5★,
+// so 4.8★ from 12,000 people outranks 5★ from 2.
+function adjustedStars(r) {
+  if (!r.rating) return null;
+  const prior = 10;
+  return (r.rating * r.votes + 3.5 * prior) / (r.votes + prior);
+}
+
+// Highest rated first. Results that match only part of what was typed go below full matches;
+// sites without star ratings (Songsterr, LaCuerda, YouTube) follow, ordered by popularity.
 export function rankResults(query, results) {
   return results
     .map((r) => {
       const rel = relevance(query, r);
-      const qual = quality(r);
-      return { ...r, relevance: Math.round(rel * 100), score: Math.round((0.6 * rel + 0.4 * qual) * 1000) / 1000 };
+      return { ...r, relevance: Math.round(rel * 100), stars: adjustedStars(r), score: Math.round(quality(r) * 1000) / 1000 };
     })
     .filter((r) => r.relevance > 0)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      const fullA = a.relevance >= 99 ? 0 : 1;
+      const fullB = b.relevance >= 99 ? 0 : 1;
+      if (fullA !== fullB) return fullA - fullB;
+      if ((a.stars != null) !== (b.stars != null)) return a.stars != null ? -1 : 1;
+      if (a.stars != null && b.stars !== a.stars) return b.stars - a.stars;
+      return b.score - a.score;
+    });
 }
 
 // ---------- HTTP ----------

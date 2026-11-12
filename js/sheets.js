@@ -711,7 +711,7 @@ refreshSheetSongOptions('built-0');
         setStatus('Nothing found. Try adding the artist, or use the links below.');
         return;
       }
-      setStatus('Best matches first in each section');
+      setStatus('Highest rated first in each section');
       renderResults();
     } catch (err) {
       setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
