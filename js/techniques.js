@@ -422,6 +422,165 @@ const TECHNIQUE_GROUPS = {
         },
       },
       {
+        name: 'John Mayer Jam, Step 1: Pick a Key (C# Minor)',
+        description:
+          'This jam is a simple loop you can improvise over for as long as you like, in the style of ' +
+          'his slow blues-rock playing. It starts in C# minor, the key of "Slow Dancing in a Burning ' +
+          'Room". To find your starting point, look for C# on the low E string: counting up the ' +
+          'frets it goes F, F#, G, G#, A, A#, B, C, then C# at the 9th fret. Everything in the next ' +
+          'steps is built around that 9th-fret root.',
+        tip:
+          'Say the note names out loud as you walk up the low E string. Once you can find any root ' +
+          'this way, you can move the whole jam to a different key just by starting on a different fret.',
+        listenFor: ['Slow Dancing in a Burning Room'],
+        fretboards: [
+          {
+            label: 'Notes on the low E string. C# (the root) is at the 9th fret',
+            startFret: 1,
+            endFret: 12,
+            numbers: [5, 9, 12],
+            dots: [
+              { s: 5, f: 1, label: 'F' }, { s: 5, f: 2, label: 'F#', kind: 'extra' },
+              { s: 5, f: 3, label: 'G' }, { s: 5, f: 4, label: 'G#', kind: 'extra' },
+              { s: 5, f: 5, label: 'A' }, { s: 5, f: 6, label: 'A#', kind: 'extra' },
+              { s: 5, f: 7, label: 'B' }, { s: 5, f: 8, label: 'C' },
+              { s: 5, f: 9, label: 'C#', kind: 'root' }, { s: 5, f: 10, label: 'D' },
+              { s: 5, f: 11, label: 'D#', kind: 'extra' }, { s: 5, f: 12, label: 'E' },
+            ],
+          },
+        ],
+        exampleTab: null,
+      },
+      {
+        name: 'John Mayer Jam, Step 2: C# Minor Pentatonic (and the Full Minor Scale)',
+        description:
+          'Play the C# minor pentatonic scale in the box starting at the 9th fret, with your first ' +
+          'finger on the C# root. Every string has two notes, at frets 9 and 11 or 9 and 12. When ' +
+          'you want more color, switch to the full C# minor scale. It is the same box with a few ' +
+          'extra notes (shown in gray): D# on the G string (fret 8) and on both E strings (fret 11), ' +
+          'plus A on the B string (fret 10) and the A string (fret 12).',
+        tip:
+          'Start and end every phrase on a C# (the light dots) so your lines sound resolved. Use the ' +
+          'gray minor-scale notes as passing notes rather than notes to land on.',
+        listenFor: null,
+        fretboards: [
+          {
+            label: 'C# minor pentatonic, 9th-fret box',
+            startFret: 8,
+            endFret: 12,
+            numbers: [9, 12],
+            dots: [
+              { s: 0, f: 9, kind: 'root' }, { s: 0, f: 12 },
+              { s: 1, f: 9 }, { s: 1, f: 12 },
+              { s: 2, f: 9 }, { s: 2, f: 11 },
+              { s: 3, f: 9 }, { s: 3, f: 11, kind: 'root' },
+              { s: 4, f: 9 }, { s: 4, f: 11 },
+              { s: 5, f: 9, label: 'C#', kind: 'root' }, { s: 5, f: 12 },
+            ],
+          },
+          {
+            label: 'C# minor scale, same box plus the gray notes',
+            startFret: 8,
+            endFret: 12,
+            numbers: [9, 12],
+            dots: [
+              { s: 0, f: 9, kind: 'root' }, { s: 0, f: 11, kind: 'extra' }, { s: 0, f: 12 },
+              { s: 1, f: 9 }, { s: 1, f: 10, kind: 'extra' }, { s: 1, f: 12 },
+              { s: 2, f: 8, kind: 'extra' }, { s: 2, f: 9 }, { s: 2, f: 11 },
+              { s: 3, f: 9 }, { s: 3, f: 11, kind: 'root' },
+              { s: 4, f: 9 }, { s: 4, f: 11 }, { s: 4, f: 12, kind: 'extra' },
+              { s: 5, f: 9, label: 'C#', kind: 'root' }, { s: 5, f: 11, kind: 'extra' }, { s: 5, f: 12 },
+            ],
+          },
+        ],
+        exampleTab: null,
+      },
+      {
+        name: 'John Mayer Jam, Step 3: Combine It With the C#m7 Chord',
+        description:
+          'Play back and forth between this chord and the pentatonic scale: strum the chord, answer ' +
+          'it with a short lick, then strum the chord again. It sits in the same spot as the scale: ' +
+          'C# on the low E string at fret 9, with your fingers on fret 9 of the G, B and high e ' +
+          'strings (A string muted). That shape on its own spells C#m. Add the B at fret 9 on the ' +
+          'D string (gray) to get the full C#m7 sound.',
+        tip:
+          'Keep the chord short and percussive so it leaves room for the lick, the same ' +
+          'call-and-response idea from earlier in this section. Your hand never has to leave the ' +
+          '9th fret.',
+        listenFor: null,
+        fretboards: [
+          {
+            label: 'C#m7 at the 9th fret (9-x-9-9-9-9 with the optional B)',
+            startFret: 8,
+            endFret: 12,
+            numbers: [9, 12],
+            dots: [
+              { s: 0, f: 9 }, { s: 1, f: 9 }, { s: 2, f: 9 },
+              { s: 3, f: 9, label: 'B', kind: 'extra' },
+              { s: 5, f: 9, label: 'C#', kind: 'root' },
+            ],
+            muted: [4],
+          },
+        ],
+        exampleTab: null,
+      },
+      {
+        name: 'John Mayer Jam, Step 4: All the Chords in E Major',
+        description:
+          'C# minor and E major share the same seven notes (E major is the relative major of C# ' +
+          'minor), so every chord in E major fits over the jam and works with the same pentatonic ' +
+          'box. In order they are E, F#m, G#m, A, B, C#m and B/D# (a B chord with D# in the bass), ' +
+          'and then E again. People usually name them from E major even when the jam centers on C#m, ' +
+          'because that is the more practical way to think about them. Each shape below is the same ' +
+          'three-note grip on the G, D and B strings with a bass note on the low E, moved up the neck.',
+        tip:
+          'Try the second version too: it keeps the open B and high e strings ringing over every ' +
+          'chord, which gives that shimmering, droning sound. Then build a loop such as C#m, A, E, B ' +
+          'and solo over it with the Step 2 box.',
+        listenFor: null,
+        exampleTabs: [
+          {
+            label: 'Chords in E major (3-note shapes + bass note)',
+            tab:
+              '   E     F#m   G#m   A\n' +
+              'e|-------------------------|\n' +
+              'B|-0-----2-----4-----5-----|\n' +
+              'G|-1-----2-----4-----6-----|\n' +
+              'D|-2-----4-----6-----7-----|\n' +
+              'A|-------------------------|\n' +
+              'E|-0-----2-----4-----5-----|\n' +
+              '\n' +
+              '   B     C#m   B/D#  E\n' +
+              'e|-------------------------|\n' +
+              'B|-7-----9-----12----12----|\n' +
+              'G|-8-----9-----11----13----|\n' +
+              'D|-9-----11----13----14----|\n' +
+              'A|-------------------------|\n' +
+              'E|-7-----9-----11----12----|',
+          },
+          {
+            label: 'Same chords with the open B and high e strings ringing',
+            tab:
+              '   E     F#m   G#m   A\n' +
+              'e|-0-----0-----0-----0-----|\n' +
+              'B|-0-----0-----0-----0-----|\n' +
+              'G|-1-----2-----4-----6-----|\n' +
+              'D|-2-----4-----6-----7-----|\n' +
+              'A|-2-----------------------|\n' +
+              'E|-0-----2-----4-----5-----|\n' +
+              '\n' +
+              '   B     C#m   B/D#  E\n' +
+              'e|-0-----0-----0-----0-----|\n' +
+              'B|-0-----0-----0-----0-----|\n' +
+              'G|-8-----9-----11----13----|\n' +
+              'D|-9-----11----13----14----|\n' +
+              'A|-------------------------|\n' +
+              'E|-7-----9-----11----12----|',
+          },
+        ],
+        exampleTab: null,
+      },
+      {
         name: 'Suggested Practice Order',
         description:
           'If you want to work through this roughly in order of difficulty: start with chord ' +
@@ -708,6 +867,55 @@ const elTechniqueSubTabs = document.getElementById('techniqueSubTabs');
 const elTechniqueIntro = document.getElementById('techniqueIntro');
 const elTechniqueCards = document.getElementById('techniqueCards');
 
+// Horizontal fretboard like a lesson book: high e on top, low E at the bottom.
+// dots: { s: string index (0 = high e), f: fret, label?, kind?: 'root' | 'extra' }
+function buildFretboardSvg(fb) {
+  const FW = 44;
+  const SG = 22;
+  const LEFT = 26;
+  const TOP = 14;
+  const frets = fb.endFret - fb.startFret + 1;
+  const width = LEFT + frets * FW + 8;
+  const height = TOP + 5 * SG + 34;
+  const xFor = (f) => LEFT + (f - fb.startFret + 0.5) * FW;
+  const names = ['e', 'B', 'G', 'D', 'A', 'E'];
+  // Long stretches of neck keep a readable size and scroll sideways on narrow screens.
+  let svg = `<svg class="fretboard-svg" style="min-width:${Math.min(width, frets * 34 + LEFT)}px" viewBox="0 0 ${width} ${height}" role="img" aria-label="${fb.label}">`;
+
+  for (let f = fb.startFret; f <= fb.endFret; f++) {
+    const cx = xFor(f);
+    if ([3, 5, 7, 9, 15, 17].includes(f)) svg += `<circle cx="${cx}" cy="${TOP + 2.5 * SG}" r="4" fill="#263f72" />`;
+    if (f === 12) {
+      svg += `<circle cx="${cx}" cy="${TOP + 1.5 * SG}" r="4" fill="#263f72" />`;
+      svg += `<circle cx="${cx}" cy="${TOP + 3.5 * SG}" r="4" fill="#263f72" />`;
+    }
+  }
+  for (let i = 0; i <= frets; i++) {
+    const x = LEFT + i * FW;
+    const isNut = i === 0 && fb.startFret === 1;
+    svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${TOP + 5 * SG}" stroke="#4a6396" stroke-width="${isNut ? 4 : 1}" />`;
+  }
+  names.forEach((n, s) => {
+    const y = TOP + s * SG;
+    svg += `<line x1="${LEFT}" y1="${y}" x2="${LEFT + frets * FW}" y2="${y}" stroke="#8394b3" stroke-width="${1 + s * 0.3}" />`;
+    const muted = (fb.muted || []).includes(s);
+    svg += `<text x="${LEFT - 8}" y="${y + 4}" font-size="11" fill="${muted ? '#f87171' : '#9fb0cc'}" text-anchor="end">${muted ? 'x' : n}</text>`;
+  });
+  (fb.numbers || []).forEach((f) => {
+    svg += `<text x="${xFor(f)}" y="${TOP + 5 * SG + 24}" font-size="12" fill="#b4c1d9" text-anchor="middle">${f}</text>`;
+  });
+  fb.dots.forEach((d) => {
+    const fill = d.kind === 'root' ? '#edeae3' : d.kind === 'extra' ? '#8394b3' : '#60a5fa';
+    const y = TOP + d.s * SG;
+    svg += `<circle cx="${xFor(d.f)}" cy="${y}" r="9" fill="${fill}"${d.kind === 'root' ? ' data-root="1"' : ''} />`;
+    if (d.label) {
+      svg += `<text x="${xFor(d.f)}" y="${y + 3.5}" font-size="${d.label.length > 1 ? 8 : 9.5}" font-weight="700" fill="#0e1b36" text-anchor="middle">${d.label}</text>`;
+    }
+  });
+  svg += '</svg>';
+  return `<figure class="fretboard-figure"><div class="fretboard-scroll">${svg}</div><figcaption>${fb.label}</figcaption></figure>`;
+}
+
 function renderTechniqueCards() {
   const group = TECHNIQUE_GROUPS[activeTechniqueGroup];
   elTechniqueIntro.textContent = group.intro;
@@ -720,20 +928,32 @@ function renderTechniqueCards() {
           <p class="technique-card-desc">${t.description}</p>
           <p class="technique-card-tip"><strong>Practice tip:</strong> ${t.tip}</p>
           ${t.listenFor ? `<p class="technique-card-listen"><strong>Listen for it in:</strong> ${t.listenFor.join(', ')}</p>` : ''}
-          ${
-            t.exampleTab
-              ? `
+          ${(t.fretboards || []).map(buildFretboardSvg).join('')}
+          ${[t.exampleTab, ...(t.exampleTabs || [])]
+            .filter(Boolean)
+            .map(
+              (ex) => `
                 <div class="tab-section">
-                  <div class="tab-section-label">${t.exampleTab.label}</div>
-                  <pre class="tab-block">${t.exampleTab.tab}</pre>
+                  <div class="tab-section-label">${ex.label}</div>
+                  <pre class="tab-block">${ex.tab}</pre>
                 </div>
               `
-              : ''
-          }
+            )
+            .join('')}
         </div>
       `
     )
     .join('');
+
+  // Fretboards wider than the screen scroll sideways: start them centered on the root note.
+  elTechniqueCards.querySelectorAll('.fretboard-scroll').forEach((wrap) => {
+    if (wrap.scrollWidth <= wrap.clientWidth + 2) return;
+    wrap.closest('.fretboard-figure').classList.add('is-scrollable');
+    const root = wrap.querySelector('[data-root]');
+    if (!root) return;
+    const offset = root.getBoundingClientRect().left - wrap.getBoundingClientRect().left;
+    wrap.scrollLeft = Math.max(0, offset - wrap.clientWidth / 2);
+  });
 
   elTechniqueSubTabs.querySelectorAll('.sub-tab-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.group === activeTechniqueGroup);

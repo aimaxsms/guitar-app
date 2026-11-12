@@ -1490,3 +1490,38 @@ a.song-finder-result {
   color: #ffd98a;
   font-weight: 600;
 }
+
+
+/* --- Horizontal fretboard diagrams in technique lessons --- */
+.fretboard-figure {
+  margin: 10px 0 14px;
+  padding: 10px 8px 6px;
+  background: #132447;
+  border: 1px solid #263f72;
+  border-radius: 10px;
+}
+
+.fretboard-svg {
+  display: block;
+  width: 100%;
+  max-width: 620px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.fretboard-figure figcaption {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #9fb0cc;
+  text-align: center;
+}
+
+.fretboard-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fretboard-figure.is-scrollable figcaption::after {
+  content: ' · swipe to see the whole neck';
+  color: #8394b3;
+}
