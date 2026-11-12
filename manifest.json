@@ -1,6 +1,6 @@
 {
-  "name": "Guitar Tuner",
-  "short_name": "Tuner",
+  "name": "Smart Guitar",
+  "short_name": "Smart Guitar",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0c",
