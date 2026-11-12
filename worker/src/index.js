@@ -365,14 +365,48 @@ function stringLabels(tuning) {
   return names.map((n) => n.padEnd(w, ' '));
 }
 
-export function songsterrPartToTabs(part) {
+const beatLength = (b) => (Array.isArray(b.duration) && b.duration[1] ? b.duration[0] / b.duration[1] : 1 / (b.type || 4));
+
+// Songsterr keeps lyrics on the vocal track as Guitar Pro-style syllables ("To-day is gon-na"),
+// one per sung note. Returns [{ mi, pos, text }]: measure index, position in the measure, syllable.
+export function songsterrLyricEvents(vocalPart) {
+  const entry = (vocalPart.newLyrics || []).find((l) => l && l.text && l.text.trim());
+  if (!entry) return [];
+  const syllables = [];
+  entry.text
+    .replace(/\[[^\]]*\]/g, ' ') // [Verse 1] labels aren't sung
+    .split(/\s+/)
+    .filter(Boolean)
+    .forEach((word) => {
+      const parts = word.split('-').filter(Boolean);
+      parts.forEach((p, i) => syllables.push(i < parts.length - 1 ? p + '-' : p));
+    });
+  const events = [];
+  let k = 0;
+  const startMeasure = Math.max(0, (entry.offset || 1) - 1);
+  vocalPart.measures.forEach((m, mi) => {
+    if (mi < startMeasure) return;
+    let pos = 0;
+    const beats = (m.voices && m.voices[0] && m.voices[0].beats) || [];
+    beats.forEach((b) => {
+      const sung = (b.notes || []).some((n) => !n.rest && !n.tie);
+      if (sung && !b.rest && k < syllables.length) events.push({ mi, pos, text: syllables[k++] });
+      pos += beatLength(b);
+    });
+  });
+  return events;
+}
+
+export function songsterrPartToTabs(part, lyricEvents = []) {
   const strings = part.strings || (part.tuning || []).length || 6;
   const labels = stringLabels((part.tuning || []).slice(0, strings));
   const gutter = labels[0].length;
+  const lyricsByMeasure = {};
+  lyricEvents.forEach((e) => (lyricsByMeasure[e.mi] = lyricsByMeasure[e.mi] || []).push(e));
   const sections = [];
   let current = null;
   const startSection = (label) => {
-    current = { label, annot: ' '.repeat(gutter) + ' ', rows: labels.map((l) => l + '|') };
+    current = { label, annot: ' '.repeat(gutter) + ' ', lyrics: '♪'.padEnd(gutter, ' ') + '|', rows: labels.map((l) => l + '|') };
     sections.push(current);
   };
   startSection(part.name ? 'Start' : 'Tab');
@@ -398,12 +432,23 @@ export function songsterrPartToTabs(part) {
       else current.label = m.marker.text;
     }
     const beats = (m.voices && m.voices[0] && m.voices[0].beats) || [];
+    const measureLyrics = lyricsByMeasure[mi] || [];
     if (!beats.length) {
-      current.annot += ' '.repeat(9);
-      current.rows = current.rows.map((r) => r + '-'.repeat(8) + '|');
+      const words = measureLyrics.map((e) => e.text).join(' ');
+      const w = Math.max(8, words.length + 1);
+      current.annot += ' '.repeat(w + 1);
+      current.lyrics += words.padEnd(w, ' ') + ' ';
+      current.rows = current.rows.map((r) => r + '-'.repeat(w) + '|');
       return;
     }
-    beats.forEach((b) => {
+    // Each guitar beat gets the syllables sung between its start and the next beat's start.
+    const starts = [];
+    let pos = 0;
+    beats.forEach((b) => { starts.push(pos); pos += beatLength(b); });
+    beats.forEach((b, bi) => {
+      const from = bi === 0 ? -Infinity : starts[bi];
+      const to = bi === beats.length - 1 ? Infinity : starts[bi + 1];
+      const sung = measureLyrics.filter((e) => e.pos >= from - 1e-9 && e.pos < to - 1e-9).map((e) => e.text).join(' ');
       const tokens = new Array(strings).fill('');
       (b.notes || []).forEach((n) => {
         if (n.rest || n.tie || n.string == null || n.string >= strings) return;
@@ -421,21 +466,33 @@ export function songsterrPartToTabs(part) {
       });
       let annot = b.chord && b.chord.text ? b.chord.text : b.palmMute ? 'PM' : '';
       const base = (BEAT_WIDTH[b.type] || 3) + (b.dots ? 1 : 0);
-      const width = Math.max(base, ...tokens.map((t) => t.length + 1), annot.length + 1);
+      const width = Math.max(base, ...tokens.map((t) => t.length + 1), annot.length + 1, sung.length + 1);
       current.annot += annot.padEnd(width, ' ');
+      current.lyrics += sung.padEnd(width, ' ');
       current.rows = current.rows.map((r, s) => r + tokens[s].padEnd(width, '-'));
       flatIndex++;
     });
     current.annot += ' ';
+    current.lyrics += ' ';
     current.rows = current.rows.map((r) => r + '|');
   });
 
   return sections
     .filter((s) => s.rows[0].length > gutter + 1)
-    .map((s) => ({
-      label: s.label,
-      tab: (s.annot.trim() ? [s.annot.replace(/\s+$/, '')] : []).concat(s.rows).join('\n'),
-    }));
+    .map((s) => {
+      const lines = (s.annot.trim() ? [s.annot.replace(/\s+$/, '')] : []).concat(s.rows);
+      // Lyrics go under the tab as a "♪|" row, column-aligned with the notes.
+      if (s.lyrics.slice(gutter + 1).trim()) lines.push(s.lyrics.replace(/\s+$/, ''));
+      return { label: s.label, tab: lines.join('\n') };
+    });
+}
+
+// The vocal track is usually listed as "Vocals" even when its instrument is a placeholder sound.
+function pickSongsterrVocalTrack(meta) {
+  const tracks = meta.tracks || [];
+  if (tracks[meta.popularTrackVocals]) return meta.popularTrackVocals;
+  const i = tracks.findIndex((t) => /vocal|voice|voz|lyrics|singer/i.test(`${t.name} ${t.instrument}`));
+  return i;
 }
 
 export async function loadSongsterrTab(html, url, ctx) {
@@ -445,7 +502,15 @@ export async function loadSongsterrTab(html, url, ctx) {
   const trackIndex = pickSongsterrTrack(meta);
   const track = (meta.tracks || [])[trackIndex] || {};
   const partUrl = `${SONGSTERR_CDN}/${meta.songId}/${meta.revisionId}/${meta.image}/${trackIndex}.json`;
-  const part = JSON.parse(await fetchPage(partUrl, ctx));
+  const vocalIndex = pickSongsterrVocalTrack(meta);
+  const [part, vocal] = await Promise.all([
+    fetchPage(partUrl, ctx).then(JSON.parse),
+    vocalIndex >= 0 && vocalIndex !== trackIndex
+      ? fetchPage(`${SONGSTERR_CDN}/${meta.songId}/${meta.revisionId}/${meta.image}/${vocalIndex}.json`, ctx).then(JSON.parse).catch(() => null)
+      : Promise.resolve(null),
+  ]);
+  let lyricEvents = [];
+  try { lyricEvents = songsterrLyricEvents(vocal || part); } catch (err) { lyricEvents = []; }
   return {
     title: meta.title,
     artist: meta.artist,
@@ -456,7 +521,7 @@ export async function loadSongsterrTab(html, url, ctx) {
     sourceUrl: url,
     track: track.name || track.instrument || '',
     lines: [],
-    tabs: songsterrPartToTabs(part),
+    tabs: songsterrPartToTabs(part, lyricEvents),
   };
 }
 

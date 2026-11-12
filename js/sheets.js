@@ -170,6 +170,7 @@ function renderSheet(song) {
 // repeated on every line, fret numbers are bold and bright, and the dashes fade into the background.
 
 const STAFF_LINE_RE = /^\s*([A-Ga-g][#b]?)\s*\|/;
+const LYRIC_LINE_RE = /^\s*♪\s*\|/;
 let tabCharWidth = 0;
 
 function measureTabCharWidth() {
@@ -200,7 +201,10 @@ function parseTabText(text) {
         annot = prev.lines.pop();
         if (!prev.lines.length) parts.pop();
       }
-      parts.push({ type: 'staff', staff, annot });
+      // A "♪|" row right under the staff holds the lyrics, lined up with the notes.
+      let lyrics = null;
+      if (i < lines.length && LYRIC_LINE_RE.test(lines[i])) lyrics = lines[i++];
+      parts.push({ type: 'staff', staff, annot, lyrics });
     } else {
       const prev = parts[parts.length - 1];
       if (prev && prev.type === 'text') prev.lines.push(lines[i]);
@@ -217,6 +221,7 @@ function staffToBars(block) {
   const labels = block.staff.map((l, s) => l.slice(0, firstBar[s]).trim());
   const bodies = block.staff.map((l, s) => l.slice(firstBar[s] + 1));
   const annotBody = block.annot ? block.annot.slice(firstBar[0] + 1) : '';
+  const lyricBody = block.lyrics ? block.lyrics.slice(block.lyrics.indexOf('|') + 1) : '';
   const ref = bodies[0];
   const cuts = [];
   for (let c = 0; c < ref.length; c++) if (ref[c] === '|') cuts.push(c);
@@ -227,6 +232,7 @@ function staffToBars(block) {
     if (cut > start) {
       bars.push({
         annot: annotBody.slice(start, cut),
+        lyrics: lyricBody.slice(start, cut),
         rows: bodies.map((b) => b.slice(start, cut).replace(/\|/g, '-')),
       });
     }
@@ -235,16 +241,29 @@ function staffToBars(block) {
   return { labels, bars };
 }
 
-// A bar wider than the screen gets cut where every string is empty, so no note is split.
+// A bar wider than the screen gets cut where every string is empty (and, if possible, between
+// words), so no note or syllable is split.
 function splitWideBar(bar, maxLen) {
   const out = [];
   let rest = bar;
+  const free = (c, needLyricGap) =>
+    rest.rows.every((r) => r[c] === '-' || r[c] === undefined || r[c] === ' ') &&
+    (!needLyricGap || !rest.lyrics[c] || rest.lyrics[c] === ' ');
+  const slice = (b, from, to) => ({
+    annot: b.annot.slice(from, to),
+    lyrics: (b.lyrics || '').slice(from, to),
+    rows: b.rows.map((r) => r.slice(from, to)),
+  });
   while (rest.rows[0].length > maxLen) {
     let cut = maxLen;
-    while (cut > maxLen / 2 && !rest.rows.every((r) => r[cut] === '-' || r[cut] === undefined || r[cut] === ' ')) cut--;
-    if (cut <= maxLen / 2) cut = maxLen;
-    out.push({ annot: rest.annot.slice(0, cut), rows: rest.rows.map((r) => r.slice(0, cut)) });
-    rest = { annot: rest.annot.slice(cut), rows: rest.rows.map((r) => r.slice(cut)) };
+    while (cut > maxLen / 2 && !free(cut, true)) cut--;
+    if (cut <= maxLen / 2) {
+      cut = maxLen;
+      while (cut > maxLen / 2 && !free(cut, false)) cut--;
+      if (cut <= maxLen / 2) cut = maxLen;
+    }
+    out.push(slice(rest, 0, cut));
+    rest = slice(rest, cut);
   }
   out.push(rest);
   return out;
@@ -304,6 +323,13 @@ function renderStaffBlock(container, block, capacity) {
         `<span class="tabx-bar">|</span>${body}<span class="tabx-bar">|</span>`;
       el.appendChild(r);
     });
+    const lyr = sys.map((p) => (p.lyrics || '').padEnd(p.rows[0].length, ' ') + ' ').join('');
+    if (lyr.trim()) {
+      const l = document.createElement('div');
+      l.className = 'tabx-row tabx-lyrics';
+      l.textContent = ' '.repeat(labelW + 1) + lyr.replace(/\s+$/, '');
+      el.appendChild(l);
+    }
     container.appendChild(el);
   });
 }

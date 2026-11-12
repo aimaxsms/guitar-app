@@ -1484,3 +1484,9 @@ a.song-finder-result {
   color: #b4c1d9;
   white-space: pre-wrap;
 }
+
+.tabx-lyrics {
+  margin-top: 4px;
+  color: #ffd98a;
+  font-weight: 600;
+}
