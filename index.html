@@ -104,6 +104,14 @@
                  placeholder="Song name, e.g. Wonderwall" autocomplete="off" />
           <button id="songFinderSearchBtn" type="button" class="start-btn song-finder-search-btn">Search</button>
         </div>
+        <div id="songFinderCodeRow" class="song-finder-code" style="display:none;">
+          <p class="song-finder-code-text">Song search is private. Enter the access code you were given.</p>
+          <div class="song-finder-row">
+            <input id="songFinderCodeInput" class="song-finder-input" type="password"
+                   placeholder="Access code" autocomplete="off" autocapitalize="off" spellcheck="false" />
+            <button id="songFinderCodeBtn" type="button" class="start-btn song-finder-search-btn">Save</button>
+          </div>
+        </div>
         <div id="songFinderStatus" class="song-finder-status"></div>
         <div id="songFinderVideo" class="song-finder-video" style="display:none;"></div>
         <div id="songFinderResults" class="song-finder-results"></div>

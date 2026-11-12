@@ -1525,3 +1525,21 @@ a.song-finder-result {
   content: ' · swipe to see the whole neck';
   color: #8394b3;
 }
+
+
+/* --- Private access code prompt --- */
+.song-finder-code {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #132447;
+  border: 1px solid #2d4880;
+  border-radius: 12px;
+}
+
+.song-finder-code-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #d6deec;
+}

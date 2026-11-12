@@ -643,10 +643,23 @@ async function fetchPage(url, ctx) {
   return text;
 }
 
+// Access codes live in the ACCESS_CODES secret (set with `wrangler secret put ACCESS_CODES`),
+// never in this public repo. Format: "name:code,name:code". No secret set = nobody gets in.
+function accessName(request, env) {
+  const given = (request.headers.get('X-Access-Code') || '').trim().toLowerCase();
+  if (!given) return null;
+  for (const pair of (env.ACCESS_CODES || '').split(',')) {
+    const i = pair.indexOf(':');
+    if (i > 0 && pair.slice(i + 1).trim().toLowerCase() === given) return pair.slice(0, i).trim();
+  }
+  return null;
+}
+
 function corsHeaders(origin) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'X-Access-Code',
     'Vary': 'Origin',
   };
 }
@@ -663,6 +676,7 @@ export default {
     const origin = request.headers.get('Origin') || '';
     if (!ALLOWED_ORIGINS.includes(origin)) return new Response('Forbidden', { status: 403 });
     if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders(origin) });
+    if (!accessName(request, env)) return json({ error: 'Access code needed', needCode: true }, 401, origin);
 
     const url = new URL(request.url);
     try {

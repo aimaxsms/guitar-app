@@ -580,9 +580,52 @@ refreshSheetSongOptions('built-0');
 
   function setStatus(text) { statusEl.textContent = text; }
 
+  // --- Private access: each person has their own code, remembered on this device ---
+  const ACCESS_KEY = 'guitarApp_accessCode';
+  const codeRow = document.getElementById('songFinderCodeRow');
+  const codeInput = document.getElementById('songFinderCodeInput');
+  const codeBtn = document.getElementById('songFinderCodeBtn');
+  let retryAfterCode = null;
+
+  function getAccessCode() {
+    try { return localStorage.getItem(ACCESS_KEY) || ''; } catch (err) { return ''; }
+  }
+  function setAccessCode(code) {
+    try {
+      if (code) localStorage.setItem(ACCESS_KEY, code);
+      else localStorage.removeItem(ACCESS_KEY);
+    } catch (err) { /* private browsing: they'll be asked again next time */ }
+  }
+  function askForCode(message) {
+    codeRow.style.display = '';
+    setStatus(message || '');
+    codeInput.value = '';
+    codeInput.focus();
+  }
+  function saveCode() {
+    const code = codeInput.value.trim();
+    if (!code) { codeInput.focus(); return; }
+    setAccessCode(code);
+    codeRow.style.display = 'none';
+    const retry = retryAfterCode;
+    retryAfterCode = null;
+    if (retry) retry();
+    else setStatus('Code saved. Search for a song.');
+  }
+  codeBtn.addEventListener('click', saveCode);
+  codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveCode(); } });
+
+  class NeedCodeError extends Error {}
+
   async function callApi(path) {
-    const res = await fetch(CHORD_API + path);
+    const code = getAccessCode();
+    if (!code) throw new NeedCodeError('Access code needed');
+    const res = await fetch(CHORD_API + path, { headers: { 'X-Access-Code': code } });
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      setAccessCode('');
+      throw new NeedCodeError('That access code didn\'t work');
+    }
     if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
     return data;
   }
@@ -740,6 +783,11 @@ refreshSheetSongOptions('built-0');
       setStatus('Highest rated first in each section');
       renderResults();
     } catch (err) {
+      if (err instanceof NeedCodeError) {
+        retryAfterCode = runSearch;
+        askForCode(err.message === 'Access code needed' ? '' : `${err.message}. Check it and try again.`);
+        return;
+      }
       setStatus(`Couldn't search right now (${err.message}). Use the links below instead.`);
     } finally {
       searchBtn.disabled = false;
@@ -768,6 +816,11 @@ refreshSheetSongOptions('built-0');
       if (isTab) setViewMode('tab');
       elSheetSelect.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
+      if (err instanceof NeedCodeError) {
+        retryAfterCode = () => loadChart(result);
+        askForCode(`${err.message}. Check it and try again.`);
+        return;
+      }
       setStatus(`Couldn't load that chart (${err.message}). Try another result.`);
     }
   }
