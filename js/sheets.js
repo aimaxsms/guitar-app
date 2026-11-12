@@ -269,11 +269,28 @@ refreshSheetSongOptions('built-0');
     youtube: (q) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' guitar chords lesson')}`,
   };
 
+  // The site buttons are real <a target="_blank"> links, so they always open in a new tab
+  // on phone and computer, and can never reload this page. We just keep their hrefs in
+  // sync with whatever is typed.
+  const links = form.querySelectorAll('.song-finder-link');
+  function updateLinks() {
+    const query = input.value.trim();
+    links.forEach((link) => {
+      if (query) link.href = buildUrl[link.dataset.site](query);
+    });
+  }
+  input.addEventListener('input', updateLinks);
+  links.forEach((link) => link.addEventListener('click', (event) => {
+    updateLinks();
+    if (!input.value.trim()) { event.preventDefault(); input.focus(); }
+  }));
+
+  // Enter key: open Ultimate Guitar (the biggest chord library) for the typed song.
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const query = input.value.trim();
     if (!query) { input.focus(); return; }
-    const site = (event.submitter && event.submitter.dataset.site) || 'ug';
-    window.open(buildUrl[site](query), '_blank', 'noopener');
+    window.open(buildUrl.ug(query), '_blank', 'noopener');
   });
+  updateLinks();
 })();

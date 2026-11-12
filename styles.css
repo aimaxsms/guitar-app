@@ -1071,3 +1071,9 @@ h1 {
   padding: 10px 16px;
   font-size: 0.85rem;
 }
+
+.song-finder-link {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}

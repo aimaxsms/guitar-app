@@ -1,4 +1,4 @@
-const CACHE_NAME = 'guitar-app-v24';
+const CACHE_NAME = 'guitar-app-v25';
 const CACHE_FILES = [
   './',
   './index.html',
@@ -48,18 +48,20 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // Only handle this app's own files; let external links (chord sites etc.) go straight through.
+  if (new URL(event.request.url).origin !== self.location.origin) return;
+
+  // Network-first: always try to get the latest version so updates show up right away,
+  // and fall back to the cached copy only when offline.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
+    fetch(event.request, { cache: 'no-cache' })
+      .then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });
