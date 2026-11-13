@@ -105,6 +105,10 @@
           <button id="songFinderMicBtn" type="button" class="song-finder-mic" aria-label="Say the song name" style="display:none;">🎤</button>
           <button id="songFinderSearchBtn" type="button" class="start-btn song-finder-search-btn">Search</button>
         </div>
+        <label id="songFinderLangRow" class="voice-lang-row" style="display:none;">
+          <span>🎤 Voice language</span>
+          <select id="songFinderVoiceLang" class="voice-lang-select"></select>
+        </label>
         <div id="songFinderCodeRow" class="song-finder-code" style="display:none;">
           <p class="song-finder-code-text">Song search is private. Enter the access code you were given.</p>
           <div class="song-finder-row">
@@ -240,6 +244,11 @@
 
       <div id="liveChordLog" class="live-chord-log"></div>
 
+      <label id="liveChordLangRow" class="voice-lang-row" style="display:none;">
+        <span>🎤 Lyrics language</span>
+        <select id="liveChordVoiceLang" class="voice-lang-select"></select>
+      </label>
+
       <div class="btn-row">
         <button id="liveChordStartBtn" class="start-btn">Start</button>
         <button id="liveChordStopBtn" class="start-btn secondary-btn" style="display:none;">Stop</button>
@@ -259,6 +268,7 @@
   <script src="js/chords.js"></script>
   <script src="js/chord-shapes.js"></script>
   <script src="js/chord-diagram.js"></script>
+  <script src="js/voice-lang.js"></script>
   <script src="js/mysongs.js"></script>
   <script src="js/sheets.js"></script>
   <script src="js/library.js"></script>

@@ -295,7 +295,7 @@ function setupSpeechRecognition() {
   const rec = new SpeechRecognitionCtor();
   rec.continuous = true;
   rec.interimResults = false;
-  rec.lang = 'en-US';
+  rec.lang = getVoiceLang();
 
   rec.onresult = (event) => {
     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -598,3 +598,12 @@ elLiveChordStartBtn.addEventListener('click', startLiveChords);
 elLiveChordStopBtn.addEventListener('click', stopLiveChords);
 
 window.LiveChordsModule = { stop: stopLiveChords };
+
+// Lyrics language picker (shared with voice song search); used the next time Start is pressed.
+if (SPEECH_SUPPORTED) {
+  const langRow = document.getElementById('liveChordLangRow');
+  if (langRow) {
+    langRow.style.display = '';
+    attachVoiceLangSelect(document.getElementById('liveChordVoiceLang'));
+  }
+}

@@ -853,16 +853,19 @@ refreshSheetSongOptions('built-0');
 
   if (SpeechRec && micBtn) {
     micBtn.style.display = '';
+    document.getElementById('songFinderLangRow').style.display = '';
+    attachVoiceLangSelect(document.getElementById('songFinderVoiceLang'));
     micBtn.addEventListener('click', () => {
       if (listening) { stopListening(); return; }
       const rec = new SpeechRec();
-      rec.lang = navigator.language || 'en-US';
+      rec.lang = getVoiceLang();
       rec.interimResults = true;
       rec.maxAlternatives = 1;
       let finalText = '';
       listening = rec;
       micBtn.classList.add('listening');
-      setStatus('Listening… say the song name (and the artist if you know it)');
+      const langLabel = (VOICE_LANGUAGES.find((l) => l.code === rec.lang) || {}).label || rec.lang;
+      setStatus(`Listening in ${langLabel}… say the song name (and the artist if you know it)`);
 
       rec.onresult = (event) => {
         let text = '';
