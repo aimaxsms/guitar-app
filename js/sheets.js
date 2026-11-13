@@ -828,6 +828,77 @@ refreshSheetSongOptions('built-0');
   }
 
   searchBtn.addEventListener('click', runSearch);
+
+  // --- Voice search: say the song, it fills the box and searches ---
+  // Uses the browser's speech recognition (Safari sends the audio to Apple, Chrome to Google).
+  const micBtn = document.getElementById('songFinderMicBtn');
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let listening = null;
+
+  // "Search for wonderwall by oasis chords" -> "wonderwall oasis"
+  function cleanSpokenQuery(text) {
+    return text
+      .replace(/^\s*(hey\s+)?(please\s+)?(can you\s+)?(search( for)?|find( me)?|look up|show me|play|get( me)?|i'?m looking for|i want)\s+/i, '')
+      .replace(/\s+(chords?|tabs?|lyrics|on (the )?guitar|guitar|please)\s*$/i, '')
+      .replace(/\s+(chords?|tabs?)\s*$/i, '')
+      .replace(/\bby\b/gi, ' ')
+      .replace(/[.?!]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function stopListening() {
+    if (listening) { try { listening.stop(); } catch (err) { /* already stopped */ } }
+  }
+
+  if (SpeechRec && micBtn) {
+    micBtn.style.display = '';
+    micBtn.addEventListener('click', () => {
+      if (listening) { stopListening(); return; }
+      const rec = new SpeechRec();
+      rec.lang = navigator.language || 'en-US';
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      let finalText = '';
+      listening = rec;
+      micBtn.classList.add('listening');
+      setStatus('Listening… say the song name (and the artist if you know it)');
+
+      rec.onresult = (event) => {
+        let text = '';
+        for (let i = 0; i < event.results.length; i++) text += event.results[i][0].transcript;
+        input.value = text;
+        if (event.results[event.results.length - 1].isFinal) finalText = text;
+      };
+      rec.onerror = (event) => {
+        const messages = {
+          'not-allowed': 'Microphone access was blocked. Allow it for this site in your browser settings.',
+          'service-not-allowed': 'Voice search is turned off in this browser.',
+          'no-speech': "Didn't hear anything. Tap 🎤 and try again.",
+          'network': 'Voice search needs an internet connection.',
+        };
+        setStatus(messages[event.error] || `Voice search stopped (${event.error}).`);
+        finalText = '';
+      };
+      rec.onend = () => {
+        listening = null;
+        micBtn.classList.remove('listening');
+        const query = cleanSpokenQuery(finalText || input.value);
+        if (query) {
+          input.value = query;
+          updateLinks();
+          runSearch();
+        }
+      };
+      try {
+        rec.start();
+      } catch (err) {
+        listening = null;
+        micBtn.classList.remove('listening');
+        setStatus("Couldn't start voice search on this browser.");
+      }
+    });
+  }
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     runSearch();

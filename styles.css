@@ -1581,3 +1581,26 @@ a.song-finder-result {
 .song-chord-bar.pinned .song-chord-card-name {
   font-size: 0.78rem;
 }
+
+
+/* --- Voice search button --- */
+.song-finder-mic {
+  flex: 0 0 auto;
+  width: 46px;
+  font-size: 1.2rem;
+  background: #1b3060;
+  border: 1px solid #2d4880;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.song-finder-mic.listening {
+  background: #f87171;
+  border-color: #f87171;
+  animation: mic-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(248, 113, 113, 0); }
+}
