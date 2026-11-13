@@ -53,6 +53,23 @@ const TECHNIQUE_GROUPS = {
         },
       },
       {
+        name: 'Rhythm Notation Used on This Site',
+        description:
+          'Plain tab shows pitch but not timing. For strumming patterns, this site uses a simple ' +
+          'letter shorthand instead of music notation: "D" for a downstroke, "U" for an upstroke, ' +
+          'and "x" for a muted/ghosted stroke where the hand keeps moving but doesn\'t sound the ' +
+          'strings — read left to right as one strum per letter.',
+        tip:
+          'Say the pattern out loud as a rhythm ("down... down-up... down") before trying to play ' +
+          'it — getting the rhythm into your voice first makes it much easier to get into your ' +
+          'hand.',
+        listenFor: null,
+        exampleTab: {
+          label: 'A common strum pattern read as: down, down-up, up-down-up',
+          tab: 'D   DU   UDU',
+        },
+      },
+      {
         name: 'Hammer-Ons & Pull-Offs (h / p)',
         description:
           'A hammer-on ("h") means pick one note, then without picking again, quickly press down a ' +
@@ -118,22 +135,123 @@ const TECHNIQUE_GROUPS = {
             'PM: ------|--|--|--|',
         },
       },
+    ],
+  },
+
+  sheeran: {
+    label: 'Ed Sheeran',
+    intro:
+      'The techniques behind a one-man-band acoustic sound — loop pedal layering, percussive ' +
+      'body tapping, and capo-driven strumming — general approach and vocabulary, not ' +
+      'transcriptions of any specific song.',
+    items: [
       {
-        name: 'Rhythm Notation Used on This Site',
+        name: 'Driving Sixteenth-Note Strum Patterns',
         description:
-          'Plain tab shows pitch but not timing. For strumming patterns, this site uses a simple ' +
-          'letter shorthand instead of music notation: "D" for a downstroke, "U" for an upstroke, ' +
-          'and "x" for a muted/ghosted stroke where the hand keeps moving but doesn\'t sound the ' +
-          'strings — read left to right as one strum per letter.',
+          'A continuous, fast down-up strumming motion where some strokes are "ghosted" (the hand ' +
+          'keeps moving in rhythm but doesn\'t actually strike the strings) — keeps the strumming ' +
+          'hand locked into a steady pulse even when the actual chord changes happen less often, ' +
+          'giving a tight, energetic, almost rhythmic-guitar-as-percussion feel.',
         tip:
-          'Say the pattern out loud as a rhythm ("down... down-up... down") before trying to play ' +
-          'it — getting the rhythm into your voice first makes it much easier to get into your ' +
-          'hand.',
-        listenFor: null,
+          'Keep your strumming hand moving in a constant down-up-down-up motion no matter what, ' +
+          'and practice choosing which strokes actually hit the strings versus which ones "ghost" ' +
+          'past them.',
+        listenFor: ['Sing', "Don't"],
         exampleTab: {
-          label: 'A common strum pattern read as: down, down-up, up-down-up',
-          tab: 'D   DU   UDU',
+          label: 'Ghost-strum pattern (original example, x = ghosted stroke, no string contact)',
+          tab: 'D   D   U   x   U   D   U   x',
         },
+      },
+      {
+        name: 'Simple, Direct Chord Vocabulary',
+        description:
+          'Mostly straightforward major/minor open and capo\'d chord shapes rather than ' +
+          'extended/jazz harmony — the energy comes from rhythm, dynamics, and arrangement (loops, ' +
+          'taps) rather than chord complexity.',
+        tip:
+          'Resist the urge to add extensions to every chord — practice getting a simple open ' +
+          'G–D–Em–C progression to sound huge through strumming dynamics and tapping alone, with ' +
+          'zero embellishment.',
+        listenFor: null,
+        exampleTab: null,
+      },
+      {
+        name: 'High Capo Placement',
+        description:
+          'Capoing quite high up the neck (often around the 5th–7th fret) to use simple ' +
+          'open-chord shapes while keeping the strum bright and percussive and the vocal melody in ' +
+          'a comfortable singing range — a brightness/energy choice, distinct from using a capo ' +
+          'just to simplify a chord shape.',
+        tip:
+          'Try playing a song\'s normal chord shapes with a capo at the 5th or 7th fret instead of ' +
+          'barre chords further up the neck — notice how much brighter and more percussive the ' +
+          'strum sounds.',
+        listenFor: ['Perfect', 'Photograph'],
+        exampleTab: null,
+      },
+      {
+        name: 'Fingerpicked Intros / Dynamic Builds',
+        description:
+          'Several songs open with a quiet, simple fingerpicked arpeggio over a capo\'d chord ' +
+          'before the full strum and tapping kick in — a deliberate quiet-to-loud arc that makes ' +
+          'the "full band" entrance feel bigger.',
+        tip:
+          'Practice playing just the first few bars of any song fingerpicked and soft before ' +
+          'switching to a full strum — the contrast is doing more work than the strum itself.',
+        listenFor: ['Photograph', 'Thinking Out Loud'],
+        exampleTab: {
+          label: 'Simple fingerpicked arpeggio (original example, capo\'d G shape)',
+          tab:
+            'e|--3-----------3-----------|\n' +
+            'B|-----0-----0-----0-----0--|\n' +
+            'G|--------0-----------0------|\n' +
+            'D|---------------------------|\n' +
+            'A|---------------------------|\n' +
+            'E|--3-------------------3---|',
+        },
+      },
+      {
+        name: 'Rhythmic Pocket for Vocal Phrasing',
+        description:
+          'Strumming/tapping patterns are often kept rhythmically simple and repetitive so they ' +
+          'create a steady "pocket" underneath fast, syncopated vocal lines — letting the vocal ' +
+          'phrasing (including rap-influenced fast lyric delivery) sit rhythmically complex on top ' +
+          'of a steady guitar part.',
+        tip:
+          'Record yourself playing a simple strum loop, then practice singing or rapping ' +
+          'increasingly complex rhythms on top without letting the strum pattern waver.',
+        listenFor: null,
+        exampleTab: null,
+      },
+      {
+        name: 'Percussive Body Tapping',
+        description:
+          'Using the strumming hand (or a loose fist) to tap or slap the top of the guitar body — ' +
+          'near the sound hole or on the upper bout — in between chord strums, adding a ' +
+          'kick/snare-like percussive layer without needing an actual drum.',
+        tip:
+          'Practice the tap completely separately first as a steady beat on the guitar body, then ' +
+          'add chord strums into the gaps between taps before trying to blend the two into one ' +
+          'continuous motion.',
+        listenFor: ['The A Team', 'Sing', 'Bloodstream'],
+        exampleTab: {
+          label: 'Strum + body tap pattern (original example, T = tap on guitar body)',
+          tab: 'Beat:  1   +   2   +   3   +   4   +\nHand:  D   T   D   T   DU  T   D   T',
+        },
+      },
+      {
+        name: 'Loop Pedal Layering',
+        description:
+          'Building a complete arrangement live, one layer at a time, using a loop pedal — ' +
+          'typically a rhythm strum pattern first, then a percussive body-tap loop, then a ' +
+          'bass-note or melodic layer, sometimes vocal harmonies — turning one guitarist into a ' +
+          'full "band."',
+        tip:
+          'Even without a loop pedal, practice playing each layer (rhythm strum, percussion tap, ' +
+          'bass notes) completely alone and in time with a metronome — that\'s the real skill the ' +
+          'pedal is just capturing.',
+        listenFor: ['You Need Me, I Don\'t Need You (live loop performances)'],
+        exampleTab: null,
       },
     ],
   },
@@ -144,127 +262,27 @@ const TECHNIQUE_GROUPS = {
       'A full breakdown of the techniques, phrasing habits, and tone philosophy behind his ' +
       'playing — not transcriptions of his songs, but the building blocks (picking hands, chord ' +
       'embellishments, blues vocabulary, timing feel) you can practice and apply to anything you ' +
-      'play. Ordered roughly easiest-to-hardest, with a suggested practice path at the end.',
+      'play. Ordered from most to least useful for everyday playing, with an easiest-first practice ' +
+      'path at the end.',
     items: [
       {
-        name: 'Chord Embellishments',
+        name: 'Bending Techniques',
         description:
-          'Taking a plain open or barre chord and adding one extra note — a 9th, a major 7th, a ' +
-          'suspended 2nd or 4th — to make it sound richer and more "vocal" without changing the ' +
-          'underlying chord function. This is one of the clearest fingerprints of his acoustic/pop ' +
-          'rhythm playing: a I-IV-V progression starts sounding like his the moment you start ' +
-          'embellishing the I and IV chords instead of leaving them plain.',
+          'Beyond a basic full-step bend: pre-bends (bend silently before picking, then release), ' +
+          'bend-and-release in one motion, and unison bends (bending a note on one string up to ' +
+          'match the pitch of a note already fretted on the string above it) — all classic ' +
+          'SRV-lineage blues techniques that add vocal-like inflection to a lead line.',
         tip:
-          'Pick any basic open chord you know and try lifting or adding one finger at a time. Listen ' +
-          'for which added notes sound good sustained (a maj7 or 9th you can hold through the whole ' +
-          'chord) vs. ones that only work as a brief passing note.',
-        listenFor: ['Daughters', 'Stop This Train', 'Dear Marie'],
+          'Practice unison bends by fretting both notes first to check the bend target is in tune, ' +
+          'then remove the higher fretted note and bend up to match it by ear alone.',
+        listenFor: ['Vultures', 'Wildfire'],
         exampleTab: {
-          label: 'C major vs. Cmaj7 (original example — just lift one finger)',
+          label: 'Pre-bend/release and unison bend (original example)',
           tab:
-            'C major      Cmaj7\n' +
-            'e|--0--      e|--0--\n' +
-            'B|--1--      B|--0--\n' +
-            'G|--0--      G|--0--\n' +
-            'D|--2--      D|--2--\n' +
-            'A|--3--      A|--3--\n' +
-            'E|--x--      E|--x--',
+            'e|------------------|\n' +
+            'B|--8b(10)r8--------|\n' +
+            'G|----------7b(9)---|',
         },
-      },
-      {
-        name: 'Capo for Open Voicings',
-        description:
-          'Using a capo to play open-chord shapes in keys that would otherwise require barre ' +
-          'chords — keeps the ringing, open-string sound (and makes room for embellishments and ' +
-          'fingerpicking patterns) even when the song itself is in a higher key.',
-        tip:
-          'If a song feels locked into awkward barre chords, try capoing up a few frets and finding ' +
-          'the open-shape equivalent instead — same sound, easier to play expressively, and ' +
-          'embellishments become much easier to add.',
-        listenFor: ['Your Body Is a Wonderland', '3x5'],
-        exampleTab: null,
-      },
-      {
-        name: 'Travis-Style Fingerpicking',
-        description:
-          'A pure fingerstyle pattern (no pick) where the thumb alternates between bass notes on ' +
-          'the low strings while the fingers pick out melody or chord tones on top — different ' +
-          'from hybrid picking, which still uses a pick for the bass notes. Travis picking gives a ' +
-          'rolling, continuous feel under a chord progression, common in his quieter acoustic ' +
-          'material.',
-        tip:
-          'Get the thumb pattern locked in first — alternating bass notes with no fingers at all — ' +
-          'before adding the top-string picking. Most people rush this and the whole pattern falls ' +
-          'apart.',
-        listenFor: ['Stop This Train', 'Daughters'],
-        exampleTab: {
-          label: 'Travis picking pattern (original example, no pick — thumb + 2 fingers)',
-          tab:
-            'e|------0-----------0------|\n' +
-            'B|---1-----1-----1-----1---|\n' +
-            'G|------------------------0|\n' +
-            'D|--------------------------|\n' +
-            'A|--0-----------2-----------|\n' +
-            'E|------3-----------3-------|',
-        },
-      },
-      {
-        name: 'Hybrid Picking',
-        description:
-          'Holding the pick between thumb and index finger while using the middle and ring ' +
-          'fingers to pluck other strings — lets you combine a strong pick attack on bass notes ' +
-          'with soft, fingerstyle-like plucks on the higher strings, all in the same pattern. ' +
-          'Think of it as a middle ground between flatpicking and Travis picking.',
-        tip:
-          'Start slow: pick the low string, then pluck the next two strings with middle/ring ' +
-          'fingers in a steady loop. Keep the picked note louder than the plucked ones at first.',
-        listenFor: ['Neon', 'Who Says', 'Slow Dancing in a Burning Room'],
-        exampleTab: {
-          label: 'Hybrid picking pattern (original example, A chord shape)',
-          tab:
-            'e|--------0-----------0------|\n' +
-            'B|-----2-----2-----2-----2---|\n' +
-            'G|--2-----------2-------------|\n' +
-            'D|-----------------------------|\n' +
-            'A|--0--------------------------|\n' +
-            'E|-----------------------------|',
-        },
-      },
-      {
-        name: 'Percussive Muting / Funk Comping',
-        description:
-          'Resting the picking hand lightly on the strings to deaden them, then strumming through ' +
-          'for a percussive "chk" sound mixed in with real chord hits — gives a rhythm part a ' +
-          'funky, syncopated feel even on just one chord.',
-        tip:
-          'Loop a single chord and alternate between a real strum and a muted "chk" on the ' +
-          'off-beats. Keep the strumming hand moving in even eighth notes the whole time, muting ' +
-          'with the fretting hand rather than stopping the strum.',
-        listenFor: ['Belief', 'Who You Love', 'Waiting on the World to Change'],
-        exampleTab: {
-          label: 'Percussive strum pattern (original example, x = muted hit)',
-          tab:
-            'e|--x-0-x-0-x-0-x-0--|\n' +
-            'B|--x-1-x-1-x-1-x-1--|\n' +
-            'G|--x-0-x-0-x-0-x-0--|\n' +
-            'D|--x-2-x-2-x-2-x-2--|\n' +
-            'A|--x---x---x---x----|\n' +
-            'E|--x---x---x---x----|',
-        },
-      },
-      {
-        name: 'Slash Chords & Smooth Bass Movement',
-        description:
-          'Playing a chord with a bass note other than its root (written like "C/E" — a C chord ' +
-          'with an E in the bass) so the lowest note steps smoothly between chords instead of ' +
-          'jumping around. This is what makes some of his chord progressions feel like they\'re ' +
-          'gently descending or climbing rather than just changing.',
-        tip:
-          'Take a simple progression you know (like C–Am–F–G) and find a bass note for each chord ' +
-          'that moves by step (C, B, A, G) instead of jumping — you can fret that note on the low ' +
-          'E or A string under the same chord shape.',
-        listenFor: ['Stop This Train', 'Dear Marie'],
-        exampleTab: null,
       },
       {
         name: 'Blues-Rock Phrasing',
@@ -291,39 +309,28 @@ const TECHNIQUE_GROUPS = {
         },
       },
       {
-        name: 'Bending Techniques',
+        name: 'Chord Embellishments',
         description:
-          'Beyond a basic full-step bend: pre-bends (bend silently before picking, then release), ' +
-          'bend-and-release in one motion, and unison bends (bending a note on one string up to ' +
-          'match the pitch of a note already fretted on the string above it) — all classic ' +
-          'SRV-lineage blues techniques that add vocal-like inflection to a lead line.',
+          'Taking a plain open or barre chord and adding one extra note — a 9th, a major 7th, a ' +
+          'suspended 2nd or 4th — to make it sound richer and more "vocal" without changing the ' +
+          'underlying chord function. This is one of the clearest fingerprints of his acoustic/pop ' +
+          'rhythm playing: a I-IV-V progression starts sounding like his the moment you start ' +
+          'embellishing the I and IV chords instead of leaving them plain.',
         tip:
-          'Practice unison bends by fretting both notes first to check the bend target is in tune, ' +
-          'then remove the higher fretted note and bend up to match it by ear alone.',
-        listenFor: ['Vultures', 'Wildfire'],
+          'Pick any basic open chord you know and try lifting or adding one finger at a time. Listen ' +
+          'for which added notes sound good sustained (a maj7 or 9th you can hold through the whole ' +
+          'chord) vs. ones that only work as a brief passing note.',
+        listenFor: ['Daughters', 'Stop This Train', 'Dear Marie'],
         exampleTab: {
-          label: 'Pre-bend/release and unison bend (original example)',
+          label: 'C major vs. Cmaj7 (original example — just lift one finger)',
           tab:
-            'e|------------------|\n' +
-            'B|--8b(10)r8--------|\n' +
-            'G|----------7b(9)---|',
-        },
-      },
-      {
-        name: 'Double Stops',
-        description:
-          'Playing two notes at once, usually on adjacent strings, often bent or sustained ' +
-          'together — a staple of blues lead playing that fills out a lick without needing a full ' +
-          'chord.',
-        tip:
-          'Pick two adjacent strings together with a single downstroke and bend both evenly. Start ' +
-          'with unison-feeling intervals (a 3rd apart) before trying wider ones.',
-        listenFor: ['Good Love Is on the Way', "I Don't Trust Myself"],
-        exampleTab: {
-          label: 'Double stop example (original)',
-          tab:
-            'B|----7-7----|\n' +
-            'G|----8-8----|',
+            'C major      Cmaj7\n' +
+            'e|--0--      e|--0--\n' +
+            'B|--1--      B|--0--\n' +
+            'G|--0--      G|--0--\n' +
+            'D|--2--      D|--2--\n' +
+            'A|--3--      A|--3--\n' +
+            'E|--x--      E|--x--',
         },
       },
       {
@@ -351,74 +358,20 @@ const TECHNIQUE_GROUPS = {
         exampleTab: null,
       },
       {
-        name: 'Behind-the-Beat Timing ("The Pocket")',
+        name: 'Double Stops',
         description:
-          'Playing blues lead phrases very slightly behind the literal beat — relaxed rather than ' +
-          'rushed — while rhythm parts stay locked tight to the click. This contrast between a ' +
-          'loose lead feel and a tight rhythm section is a huge part of what makes blues-rock ' +
-          'soloing feel "soulful" instead of mechanical.',
+          'Playing two notes at once, usually on adjacent strings, often bent or sustained ' +
+          'together — a staple of blues lead playing that fills out a lick without needing a full ' +
+          'chord.',
         tip:
-          'Practice with a metronome on beats 2 and 4 only (not every beat) — it forces you to feel ' +
-          'the pocket instead of anchoring to a click on every subdivision.',
-        listenFor: ['Gravity', 'Georgia'],
-        exampleTab: null,
-      },
-      {
-        name: 'Tone & Touch Philosophy',
-        description:
-          'The playing style leans on dynamics more than effects: a clean-to-slightly-overdriven ' +
-          'tone, single-coil-style pickups, moderate compression for an even attack, and ' +
-          'restrained reverb/delay rather than heavy effects. Most of the expression comes from ' +
-          'picking-hand dynamics and volume-knob swells, not pedals.',
-        tip:
-          'Practice playing the same lick at three different volumes using only your picking hand ' +
-          '(not the guitar\'s volume knob) — quiet/ghosted, medium, and full attack — without ' +
-          'changing your fretting.',
-        listenFor: null,
-        exampleTab: null,
-      },
-      {
-        name: 'Signature-Style Riff (Original Composition)',
-        description:
-          'A full riff written in the muted, syncopated funk-pop groove style heard in his ' +
-          'rhythm playing — ghosted muted hits mixed with open chord tones over an A chord, not a ' +
-          'transcription of any specific song, but built from the same vocabulary.',
-        tip:
-          'Keep the picking hand moving in strict eighth notes the whole way through, even on the ' +
-          'muted (x) hits — the groove comes from the hand never stopping, only the strings ' +
-          'changing between muted and open.',
-        listenFor: ['Waiting on the World to Change', 'Who You Love', 'Belief'],
+          'Pick two adjacent strings together with a single downstroke and bend both evenly. Start ' +
+          'with unison-feeling intervals (a 3rd apart) before trying wider ones.',
+        listenFor: ['Good Love Is on the Way', "I Don't Trust Myself"],
         exampleTab: {
-          label: 'Signature-style funk riff in A (original composition)',
+          label: 'Double stop example (original)',
           tab:
-            'e|--0-------0-----0---|\n' +
-            'B|-----2--x----2-x----|\n' +
-            'G|--2-----x-2-----x---|\n' +
-            'D|--2-----x-2-----x---|\n' +
-            'A|--0-----------------|\n' +
-            'E|---------------------|',
-        },
-      },
-      {
-        name: 'Signature-Style Guitar Solo (Original Composition)',
-        description:
-          'A short lead phrase written in A minor pentatonic that strings together several of the ' +
-          'techniques above — a pre-bend/release, a double stop, and a call-and-response pause — ' +
-          'into one original 2-bar solo idea, giving you a template to build your own phrases from.',
-        tip:
-          'Play it through slowly first to get the bend targets and timing right, then try writing ' +
-          'your own "answer" phrase for the second bar instead of using the one given, using the ' +
-          'same call-and-response idea.',
-        listenFor: ['Gravity', 'Wildfire', 'Vultures'],
-        exampleTab: {
-          label: 'Signature-style A minor pentatonic solo phrase (original composition)',
-          tab:
-            'e|------------------5b7r5---------5--|\n' +
-            'B|----5---8p5------------8-8----------|\n' +
-            'G|--5---------------------------------|\n' +
-            'D|-------------------------------------|\n' +
-            'A|-------------------------------------|\n' +
-            'E|-------------------------------------|',
+            'B|----7-7----|\n' +
+            'G|----8-8----|',
         },
       },
       {
@@ -581,6 +534,172 @@ const TECHNIQUE_GROUPS = {
         exampleTab: null,
       },
       {
+        name: 'Capo for Open Voicings',
+        description:
+          'Using a capo to play open-chord shapes in keys that would otherwise require barre ' +
+          'chords — keeps the ringing, open-string sound (and makes room for embellishments and ' +
+          'fingerpicking patterns) even when the song itself is in a higher key.',
+        tip:
+          'If a song feels locked into awkward barre chords, try capoing up a few frets and finding ' +
+          'the open-shape equivalent instead — same sound, easier to play expressively, and ' +
+          'embellishments become much easier to add.',
+        listenFor: ['Your Body Is a Wonderland', '3x5'],
+        exampleTab: null,
+      },
+      {
+        name: 'Hybrid Picking',
+        description:
+          'Holding the pick between thumb and index finger while using the middle and ring ' +
+          'fingers to pluck other strings — lets you combine a strong pick attack on bass notes ' +
+          'with soft, fingerstyle-like plucks on the higher strings, all in the same pattern. ' +
+          'Think of it as a middle ground between flatpicking and Travis picking.',
+        tip:
+          'Start slow: pick the low string, then pluck the next two strings with middle/ring ' +
+          'fingers in a steady loop. Keep the picked note louder than the plucked ones at first.',
+        listenFor: ['Neon', 'Who Says', 'Slow Dancing in a Burning Room'],
+        exampleTab: {
+          label: 'Hybrid picking pattern (original example, A chord shape)',
+          tab:
+            'e|--------0-----------0------|\n' +
+            'B|-----2-----2-----2-----2---|\n' +
+            'G|--2-----------2-------------|\n' +
+            'D|-----------------------------|\n' +
+            'A|--0--------------------------|\n' +
+            'E|-----------------------------|',
+        },
+      },
+      {
+        name: 'Percussive Muting / Funk Comping',
+        description:
+          'Resting the picking hand lightly on the strings to deaden them, then strumming through ' +
+          'for a percussive "chk" sound mixed in with real chord hits — gives a rhythm part a ' +
+          'funky, syncopated feel even on just one chord.',
+        tip:
+          'Loop a single chord and alternate between a real strum and a muted "chk" on the ' +
+          'off-beats. Keep the strumming hand moving in even eighth notes the whole time, muting ' +
+          'with the fretting hand rather than stopping the strum.',
+        listenFor: ['Belief', 'Who You Love', 'Waiting on the World to Change'],
+        exampleTab: {
+          label: 'Percussive strum pattern (original example, x = muted hit)',
+          tab:
+            'e|--x-0-x-0-x-0-x-0--|\n' +
+            'B|--x-1-x-1-x-1-x-1--|\n' +
+            'G|--x-0-x-0-x-0-x-0--|\n' +
+            'D|--x-2-x-2-x-2-x-2--|\n' +
+            'A|--x---x---x---x----|\n' +
+            'E|--x---x---x---x----|',
+        },
+      },
+      {
+        name: 'Slash Chords & Smooth Bass Movement',
+        description:
+          'Playing a chord with a bass note other than its root (written like "C/E" — a C chord ' +
+          'with an E in the bass) so the lowest note steps smoothly between chords instead of ' +
+          'jumping around. This is what makes some of his chord progressions feel like they\'re ' +
+          'gently descending or climbing rather than just changing.',
+        tip:
+          'Take a simple progression you know (like C–Am–F–G) and find a bass note for each chord ' +
+          'that moves by step (C, B, A, G) instead of jumping — you can fret that note on the low ' +
+          'E or A string under the same chord shape.',
+        listenFor: ['Stop This Train', 'Dear Marie'],
+        exampleTab: null,
+      },
+      {
+        name: 'Travis-Style Fingerpicking',
+        description:
+          'A pure fingerstyle pattern (no pick) where the thumb alternates between bass notes on ' +
+          'the low strings while the fingers pick out melody or chord tones on top — different ' +
+          'from hybrid picking, which still uses a pick for the bass notes. Travis picking gives a ' +
+          'rolling, continuous feel under a chord progression, common in his quieter acoustic ' +
+          'material.',
+        tip:
+          'Get the thumb pattern locked in first — alternating bass notes with no fingers at all — ' +
+          'before adding the top-string picking. Most people rush this and the whole pattern falls ' +
+          'apart.',
+        listenFor: ['Stop This Train', 'Daughters'],
+        exampleTab: {
+          label: 'Travis picking pattern (original example, no pick — thumb + 2 fingers)',
+          tab:
+            'e|------0-----------0------|\n' +
+            'B|---1-----1-----1-----1---|\n' +
+            'G|------------------------0|\n' +
+            'D|--------------------------|\n' +
+            'A|--0-----------2-----------|\n' +
+            'E|------3-----------3-------|',
+        },
+      },
+      {
+        name: 'Behind-the-Beat Timing ("The Pocket")',
+        description:
+          'Playing blues lead phrases very slightly behind the literal beat — relaxed rather than ' +
+          'rushed — while rhythm parts stay locked tight to the click. This contrast between a ' +
+          'loose lead feel and a tight rhythm section is a huge part of what makes blues-rock ' +
+          'soloing feel "soulful" instead of mechanical.',
+        tip:
+          'Practice with a metronome on beats 2 and 4 only (not every beat) — it forces you to feel ' +
+          'the pocket instead of anchoring to a click on every subdivision.',
+        listenFor: ['Gravity', 'Georgia'],
+        exampleTab: null,
+      },
+      {
+        name: 'Tone & Touch Philosophy',
+        description:
+          'The playing style leans on dynamics more than effects: a clean-to-slightly-overdriven ' +
+          'tone, single-coil-style pickups, moderate compression for an even attack, and ' +
+          'restrained reverb/delay rather than heavy effects. Most of the expression comes from ' +
+          'picking-hand dynamics and volume-knob swells, not pedals.',
+        tip:
+          'Practice playing the same lick at three different volumes using only your picking hand ' +
+          '(not the guitar\'s volume knob) — quiet/ghosted, medium, and full attack — without ' +
+          'changing your fretting.',
+        listenFor: null,
+        exampleTab: null,
+      },
+      {
+        name: 'Signature-Style Riff (Original Composition)',
+        description:
+          'A full riff written in the muted, syncopated funk-pop groove style heard in his ' +
+          'rhythm playing — ghosted muted hits mixed with open chord tones over an A chord, not a ' +
+          'transcription of any specific song, but built from the same vocabulary.',
+        tip:
+          'Keep the picking hand moving in strict eighth notes the whole way through, even on the ' +
+          'muted (x) hits — the groove comes from the hand never stopping, only the strings ' +
+          'changing between muted and open.',
+        listenFor: ['Waiting on the World to Change', 'Who You Love', 'Belief'],
+        exampleTab: {
+          label: 'Signature-style funk riff in A (original composition)',
+          tab:
+            'e|--0-------0-----0---|\n' +
+            'B|-----2--x----2-x----|\n' +
+            'G|--2-----x-2-----x---|\n' +
+            'D|--2-----x-2-----x---|\n' +
+            'A|--0-----------------|\n' +
+            'E|---------------------|',
+        },
+      },
+      {
+        name: 'Signature-Style Guitar Solo (Original Composition)',
+        description:
+          'A short lead phrase written in A minor pentatonic that strings together several of the ' +
+          'techniques above — a pre-bend/release, a double stop, and a call-and-response pause — ' +
+          'into one original 2-bar solo idea, giving you a template to build your own phrases from.',
+        tip:
+          'Play it through slowly first to get the bend targets and timing right, then try writing ' +
+          'your own "answer" phrase for the second bar instead of using the one given, using the ' +
+          'same call-and-response idea.',
+        listenFor: ['Gravity', 'Wildfire', 'Vultures'],
+        exampleTab: {
+          label: 'Signature-style A minor pentatonic solo phrase (original composition)',
+          tab:
+            'e|------------------5b7r5---------5--|\n' +
+            'B|----5---8p5------------8-8----------|\n' +
+            'G|--5---------------------------------|\n' +
+            'D|-------------------------------------|\n' +
+            'A|-------------------------------------|\n' +
+            'E|-------------------------------------|',
+        },
+      },
+      {
         name: 'Suggested Practice Order',
         description:
           'If you want to work through this roughly in order of difficulty: start with chord ' +
@@ -598,124 +717,6 @@ const TECHNIQUE_GROUPS = {
     ],
   },
 
-  sheeran: {
-    label: 'Ed Sheeran',
-    intro:
-      'The techniques behind a one-man-band acoustic sound — loop pedal layering, percussive ' +
-      'body tapping, and capo-driven strumming — general approach and vocabulary, not ' +
-      'transcriptions of any specific song.',
-    items: [
-      {
-        name: 'Percussive Body Tapping',
-        description:
-          'Using the strumming hand (or a loose fist) to tap or slap the top of the guitar body — ' +
-          'near the sound hole or on the upper bout — in between chord strums, adding a ' +
-          'kick/snare-like percussive layer without needing an actual drum.',
-        tip:
-          'Practice the tap completely separately first as a steady beat on the guitar body, then ' +
-          'add chord strums into the gaps between taps before trying to blend the two into one ' +
-          'continuous motion.',
-        listenFor: ['The A Team', 'Sing', 'Bloodstream'],
-        exampleTab: {
-          label: 'Strum + body tap pattern (original example, T = tap on guitar body)',
-          tab: 'Beat:  1   +   2   +   3   +   4   +\nHand:  D   T   D   T   DU  T   D   T',
-        },
-      },
-      {
-        name: 'Loop Pedal Layering',
-        description:
-          'Building a complete arrangement live, one layer at a time, using a loop pedal — ' +
-          'typically a rhythm strum pattern first, then a percussive body-tap loop, then a ' +
-          'bass-note or melodic layer, sometimes vocal harmonies — turning one guitarist into a ' +
-          'full "band."',
-        tip:
-          'Even without a loop pedal, practice playing each layer (rhythm strum, percussion tap, ' +
-          'bass notes) completely alone and in time with a metronome — that\'s the real skill the ' +
-          'pedal is just capturing.',
-        listenFor: ['You Need Me, I Don\'t Need You (live loop performances)'],
-        exampleTab: null,
-      },
-      {
-        name: 'High Capo Placement',
-        description:
-          'Capoing quite high up the neck (often around the 5th–7th fret) to use simple ' +
-          'open-chord shapes while keeping the strum bright and percussive and the vocal melody in ' +
-          'a comfortable singing range — a brightness/energy choice, distinct from using a capo ' +
-          'just to simplify a chord shape.',
-        tip:
-          'Try playing a song\'s normal chord shapes with a capo at the 5th or 7th fret instead of ' +
-          'barre chords further up the neck — notice how much brighter and more percussive the ' +
-          'strum sounds.',
-        listenFor: ['Perfect', 'Photograph'],
-        exampleTab: null,
-      },
-      {
-        name: 'Driving Sixteenth-Note Strum Patterns',
-        description:
-          'A continuous, fast down-up strumming motion where some strokes are "ghosted" (the hand ' +
-          'keeps moving in rhythm but doesn\'t actually strike the strings) — keeps the strumming ' +
-          'hand locked into a steady pulse even when the actual chord changes happen less often, ' +
-          'giving a tight, energetic, almost rhythmic-guitar-as-percussion feel.',
-        tip:
-          'Keep your strumming hand moving in a constant down-up-down-up motion no matter what, ' +
-          'and practice choosing which strokes actually hit the strings versus which ones "ghost" ' +
-          'past them.',
-        listenFor: ['Sing', "Don't"],
-        exampleTab: {
-          label: 'Ghost-strum pattern (original example, x = ghosted stroke, no string contact)',
-          tab: 'D   D   U   x   U   D   U   x',
-        },
-      },
-      {
-        name: 'Simple, Direct Chord Vocabulary',
-        description:
-          'Mostly straightforward major/minor open and capo\'d chord shapes rather than ' +
-          'extended/jazz harmony — the energy comes from rhythm, dynamics, and arrangement (loops, ' +
-          'taps) rather than chord complexity.',
-        tip:
-          'Resist the urge to add extensions to every chord — practice getting a simple open ' +
-          'G–D–Em–C progression to sound huge through strumming dynamics and tapping alone, with ' +
-          'zero embellishment.',
-        listenFor: null,
-        exampleTab: null,
-      },
-      {
-        name: 'Fingerpicked Intros / Dynamic Builds',
-        description:
-          'Several songs open with a quiet, simple fingerpicked arpeggio over a capo\'d chord ' +
-          'before the full strum and tapping kick in — a deliberate quiet-to-loud arc that makes ' +
-          'the "full band" entrance feel bigger.',
-        tip:
-          'Practice playing just the first few bars of any song fingerpicked and soft before ' +
-          'switching to a full strum — the contrast is doing more work than the strum itself.',
-        listenFor: ['Photograph', 'Thinking Out Loud'],
-        exampleTab: {
-          label: 'Simple fingerpicked arpeggio (original example, capo\'d G shape)',
-          tab:
-            'e|--3-----------3-----------|\n' +
-            'B|-----0-----0-----0-----0--|\n' +
-            'G|--------0-----------0------|\n' +
-            'D|---------------------------|\n' +
-            'A|---------------------------|\n' +
-            'E|--3-------------------3---|',
-        },
-      },
-      {
-        name: 'Rhythmic Pocket for Vocal Phrasing',
-        description:
-          'Strumming/tapping patterns are often kept rhythmically simple and repetitive so they ' +
-          'create a steady "pocket" underneath fast, syncopated vocal lines — letting the vocal ' +
-          'phrasing (including rap-influenced fast lyric delivery) sit rhythmically complex on top ' +
-          'of a steady guitar part.',
-        tip:
-          'Record yourself playing a simple strum loop, then practice singing or rapping ' +
-          'increasingly complex rhythms on top without letting the strum pattern waver.',
-        listenFor: null,
-        exampleTab: null,
-      },
-    ],
-  },
-
   jazz: {
     label: 'Jazz',
     intro:
@@ -723,26 +724,16 @@ const TECHNIQUE_GROUPS = {
       'across the genre, not tied to any one artist.',
     items: [
       {
-        name: 'Drop 2 Voicings',
+        name: 'ii-V-I Progressions',
         description:
-          'Four-note chord voicings built by taking a close-position chord and dropping the ' +
-          'second-highest note down an octave — spreads the notes across the middle strings and ' +
-          'makes smooth, guitar-friendly chord shapes that are the backbone of jazz comping.',
+          'The most common harmonic movement in jazz — a minor 7th chord on the 2nd scale ' +
+          'degree, moving to a dominant 7th on the 5th, resolving to a major 7th on the 1st (e.g., ' +
+          'Dm7–G7–Cmaj7 in the key of C). Nearly every jazz standard is built from chains of these.',
         tip:
-          'Take a simple 7th chord you know in close position and try moving just the ' +
-          'second-highest note down an octave — notice how much easier it becomes to grab on the ' +
-          'guitar.',
+          'Practice comping through a ii-V-I in all 12 keys using drop-2 voicings, moving each ' +
+          'chord to the nearest available voicing on the neck rather than jumping around.',
         listenFor: null,
-        exampleTab: {
-          label: 'Cmaj7 drop 2 voicing (verified: C-G-B-E from low to high)',
-          tab:
-            'e|--x--\n' +
-            'B|--5--\n' +
-            'G|--4--\n' +
-            'D|--5--\n' +
-            'A|--3--\n' +
-            'E|--x--',
-        },
+        exampleTab: null,
       },
       {
         name: 'Essential Jazz Chord Shapes',
@@ -770,16 +761,38 @@ const TECHNIQUE_GROUPS = {
         },
       },
       {
-        name: 'ii-V-I Progressions',
+        name: 'Swing Comping Rhythm',
         description:
-          'The most common harmonic movement in jazz — a minor 7th chord on the 2nd scale ' +
-          'degree, moving to a dominant 7th on the 5th, resolving to a major 7th on the 1st (e.g., ' +
-          'Dm7–G7–Cmaj7 in the key of C). Nearly every jazz standard is built from chains of these.',
+          'Playing chords in a syncopated, "swung" rhythm — often called "Freddie Green" style ' +
+          'comping — hitting chords on beats 2 and 4, or in a swung eighth-note pattern, rather ' +
+          'than a straight strum, giving the classic swing-era rhythmic feel.',
         tip:
-          'Practice comping through a ii-V-I in all 12 keys using drop-2 voicings, moving each ' +
-          'chord to the nearest available voicing on the neck rather than jumping around.',
+          'Practice comping a single chord on just beats 2 and 4 with a metronome, muting the ' +
+          'chord immediately after each hit for a short, percussive "chunk" sound.',
         listenFor: null,
         exampleTab: null,
+      },
+      {
+        name: 'Drop 2 Voicings',
+        description:
+          'Four-note chord voicings built by taking a close-position chord and dropping the ' +
+          'second-highest note down an octave — spreads the notes across the middle strings and ' +
+          'makes smooth, guitar-friendly chord shapes that are the backbone of jazz comping.',
+        tip:
+          'Take a simple 7th chord you know in close position and try moving just the ' +
+          'second-highest note down an octave — notice how much easier it becomes to grab on the ' +
+          'guitar.',
+        listenFor: null,
+        exampleTab: {
+          label: 'Cmaj7 drop 2 voicing (verified: C-G-B-E from low to high)',
+          tab:
+            'e|--x--\n' +
+            'B|--5--\n' +
+            'G|--4--\n' +
+            'D|--5--\n' +
+            'A|--3--\n' +
+            'E|--x--',
+        },
       },
       {
         name: 'Guide Tone Lines',
@@ -832,18 +845,6 @@ const TECHNIQUE_GROUPS = {
           label: 'Walking bass fragment, D up to G (original example)',
           tab: 'D|--0-----2-----4-----5--|',
         },
-      },
-      {
-        name: 'Swing Comping Rhythm',
-        description:
-          'Playing chords in a syncopated, "swung" rhythm — often called "Freddie Green" style ' +
-          'comping — hitting chords on beats 2 and 4, or in a swung eighth-note pattern, rather ' +
-          'than a straight strum, giving the classic swing-era rhythmic feel.',
-        tip:
-          'Practice comping a single chord on just beats 2 and 4 with a metronome, muting the ' +
-          'chord immediately after each hit for a short, percussive "chunk" sound.',
-        listenFor: null,
-        exampleTab: null,
       },
       {
         name: 'Altered Dominant Tensions',
