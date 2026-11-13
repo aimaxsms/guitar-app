@@ -1625,3 +1625,325 @@ a.song-finder-result {
   border: 1px solid #2d4880;
   border-radius: 8px;
 }
+
+
+/* --- Music Theory course --- */
+.mt-panel {
+  justify-content: flex-start;
+}
+
+.mt-progress {
+  width: 100%;
+  max-width: 640px;
+}
+
+.mt-progress-text {
+  font-size: 0.85rem;
+  color: #b4c1d9;
+  margin-bottom: 6px;
+}
+
+.mt-progress-bar {
+  height: 8px;
+  background: #172a52;
+  border: 1px solid #263f72;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mt-progress-bar > div {
+  height: 100%;
+  background: #edeae3;
+  border-radius: 999px;
+  transition: width 0.3s ease-out;
+}
+
+.mt-list {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mt-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  color: #f7f5f0;
+  background: linear-gradient(180deg, #1b3060, #172a52);
+  border: 1px solid #2d4880;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.mt-list-item:hover {
+  border-color: #edeae3;
+}
+
+.mt-list-num {
+  flex: 0 0 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #edeae3;
+  background: #0e1b36;
+  border: 1px solid #3d5a94;
+  border-radius: 50%;
+}
+
+.mt-list-item.done .mt-list-num {
+  color: #0e1b36;
+  background: #4ade80;
+  border-color: #4ade80;
+}
+
+.mt-list-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.95rem;
+}
+
+.mt-list-text span {
+  font-size: 0.78rem;
+  color: #9fb0cc;
+}
+
+.mt-lesson {
+  width: 100%;
+  max-width: 640px;
+  text-align: left;
+}
+
+.mt-back {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: #edeae3;
+  background: #1b3060;
+  border: 1px solid #2d4880;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.mt-lesson-num {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: #9fb0cc;
+}
+
+.mt-lesson-title {
+  margin: 4px 0 10px;
+  font-size: 1.35rem;
+  color: #f7f5f0;
+}
+
+.mt-p {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #d6deec;
+}
+
+.mt-p strong {
+  color: #ffffff;
+}
+
+.mt-note {
+  font-size: 0.88rem;
+  color: #d6deec;
+  line-height: 1.5;
+}
+
+.mt-figure {
+  margin: 12px 0 16px;
+  text-align: center;
+}
+
+.mt-circle {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+}
+
+.mt-figure figcaption {
+  font-size: 0.75rem;
+  color: #9fb0cc;
+}
+
+.mt-table-wrap {
+  overflow-x: auto;
+  margin: 10px 0 14px;
+  border: 1px solid #263f72;
+  border-radius: 10px;
+}
+
+.mt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.mt-table th,
+.mt-table td {
+  padding: 7px 9px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #22396a;
+}
+
+.mt-table th {
+  color: #0e1b36;
+  background: #edeae3;
+  font-weight: 700;
+}
+
+.mt-table td {
+  color: #d6deec;
+  background: #132447;
+}
+
+.mt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mt-hear {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+.mt-hear-title,
+.mt-quiz-title,
+.mt-transposer-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #edeae3;
+}
+
+.mt-hear-btn {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.88rem;
+  color: #f7f5f0;
+  background: #172a52;
+  border: 1px solid #2d4880;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.mt-hear-btn:active {
+  background: #22396a;
+}
+
+.mt-transposer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 12px;
+  background: #132447;
+  border: 1px solid #2d4880;
+  border-radius: 12px;
+}
+
+.mt-transposer-out {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffd98a;
+  white-space: pre-wrap;
+}
+
+.mt-quiz {
+  margin: 18px 0;
+  padding: 14px;
+  background: #132447;
+  border: 1px solid #2d4880;
+  border-radius: 12px;
+}
+
+.mt-quiz-q {
+  margin-top: 12px;
+}
+
+.mt-quiz-question {
+  font-size: 0.92rem;
+  color: #f7f5f0;
+  margin-bottom: 8px;
+}
+
+.mt-quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.mt-quiz-opt {
+  padding: 9px 8px;
+  font-size: 0.85rem;
+  color: #f7f5f0;
+  background: #1b3060;
+  border: 1px solid #2d4880;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.mt-quiz-opt.correct {
+  color: #0e1b36;
+  background: #4ade80;
+  border-color: #4ade80;
+  opacity: 1;
+}
+
+.mt-quiz-opt.wrong {
+  color: #fecaca;
+  background: #3a1f2b;
+  border-color: #f87171;
+}
+
+.mt-quiz-opt:disabled:not(.correct):not(.wrong) {
+  opacity: 0.5;
+}
+
+.mt-quiz-feedback {
+  min-height: 1em;
+  margin-top: 6px;
+  font-size: 0.82rem;
+}
+
+.mt-quiz-feedback.good {
+  color: #86efac;
+}
+
+.mt-quiz-feedback.bad {
+  color: #fca5a5;
+}
+
+.mt-quiz-done {
+  margin-top: 14px;
+  padding: 10px;
+  text-align: center;
+  font-weight: 800;
+  color: #0e1b36;
+  background: #4ade80;
+  border-radius: 10px;
+}
+
+.mt-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mt-nav .start-btn {
+  margin-top: 0;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+}

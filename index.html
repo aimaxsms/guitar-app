@@ -18,13 +18,14 @@
   <main class="app">
     <nav class="tabs">
       <button class="tab-btn active" data-tab="tuner">Tuner</button>
-      <button class="tab-btn" data-tab="strum">Strum Trainer</button>
-      <button class="tab-btn" data-tab="chords">Chord Game</button>
       <button class="tab-btn" data-tab="sheets">Chord Sheets</button>
       <button class="tab-btn" data-tab="library">Chord Library</button>
+      <button class="tab-btn" data-tab="chords">Chord Game</button>
       <button class="tab-btn" data-tab="theory">Chord Theory</button>
+      <button class="tab-btn" data-tab="musictheory">Music Theory</button>
       <button class="tab-btn" data-tab="scales">Scales</button>
       <button class="tab-btn" data-tab="techniques">Techniques</button>
+      <button class="tab-btn" data-tab="strum">Strum Trainer</button>
       <button class="tab-btn" data-tab="livechords">Live Chords</button>
     </nav>
 
@@ -198,6 +199,17 @@
       <div id="keyInfo" class="key-info"></div>
     </section>
 
+    <section id="tab-musictheory" class="tab-panel panel mt-panel">
+      <h1>Music Theory</h1>
+      <p class="theory-intro">
+        A step-by-step course from the 12 notes to modes, made for guitar. Each lesson has a
+        picture of the neck, sounds you can play, and a quick quiz. Your progress is saved on this device.
+      </p>
+      <div id="mtProgress" class="mt-progress"></div>
+      <div id="mtList" class="mt-list"></div>
+      <div id="mtLesson" class="mt-lesson" style="display:none;"></div>
+    </section>
+
     <section id="tab-scales" class="tab-panel panel theory-panel">
       <h1>Scales</h1>
 
@@ -276,6 +288,7 @@
   <script src="js/scale-diagram.js"></script>
   <script src="js/scales.js"></script>
   <script src="js/techniques.js"></script>
+  <script src="js/music-theory.js"></script>
   <script src="js/livechords.js"></script>
   <script src="js/nav.js"></script>
   <script>
