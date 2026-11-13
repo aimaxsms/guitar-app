@@ -1543,3 +1543,41 @@ a.song-finder-result {
   font-size: 0.85rem;
   color: #d6deec;
 }
+
+/* --- Chord bar: show every chord at once (wraps into rows instead of scrolling sideways) --- */
+.song-chord-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+  overflow-x: visible;
+}
+
+.song-chord-card {
+  min-width: 0;
+}
+
+.song-chord-card svg {
+  width: 100%;
+  max-width: 76px;
+}
+
+.song-chord-bar.pinned .song-chord-row {
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 4px;
+  /* Songs with lots of chords: the pinned bar never covers more than half the screen. */
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.song-chord-bar.pinned .song-chord-card {
+  padding: 2px 2px 4px;
+}
+
+.song-chord-bar.pinned .song-chord-card svg {
+  width: 100%;
+  max-width: 62px;
+}
+
+.song-chord-bar.pinned .song-chord-card-name {
+  font-size: 0.78rem;
+}
