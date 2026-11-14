@@ -153,6 +153,8 @@ export function parseUgSong(html, url) {
     tuning: (meta.tuning && meta.tuning.name) || 'Standard',
     source: 'Ultimate Guitar',
     sourceUrl: url,
+    strums: ugStrums(data.tab_view.strummings),
+    alternatives: ugAlternatives(data.tab_view.versions, url, data.tab.type),
   };
   if (data.tab.type === 'Tabs') return { ...base, lines: [], tabs: ugTabSections(content) };
   const raw = content
@@ -163,7 +165,44 @@ export function parseUgSong(html, url) {
       const r = splitMarkedLine(l, /\[ch\](.*?)\[\/ch\]/g);
       return r.preInlined ? { text: r.text, chords: null, preInlined: true } : r;
     });
-  return { ...base, lines: inlineKeepingPreInlined(raw), tabs: [] };
+  const lines = inlineKeepingPreInlined(raw);
+  return { ...base, lines, tabs: [], abbreviated: chartSkipsWords(lines) };
+}
+
+// UG strumming patterns: one code per rhythmic slot. Decoded from real songs (Riptide's chorus
+// reads D-DU-UDU, Stand By Me's chucks land on 2 and 4): 1 down, 101 up, 2/102 muted down/up,
+// 3/103 accented down/up, 2xx a gap.
+function ugStrums(strummings) {
+  return (Array.isArray(strummings) ? strummings : [])
+    .filter((st) => Array.isArray(st.measures) && st.measures.length)
+    .slice(0, 6)
+    .map((st) => ({
+      part: (st.part || '').trim(),
+      bpm: Number(st.bpm) || null,
+      den: Number(st.denuminator) || 8,
+      triplet: !!st.is_triplet,
+      codes: st.measures.map((m) => Number(m.measure)),
+    }));
+}
+
+// Other chord versions of the same song, best first, so a skimpy chart can be swapped quickly.
+function ugAlternatives(versions, currentUrl, type) {
+  return (Array.isArray(versions) ? versions : [])
+    .filter((v) => v.type === type && v.tab_url && v.tab_url !== currentUrl && /^https:\/\/tabs\.ultimate-guitar\.com\/tab\//.test(v.tab_url))
+    .sort((a, b) => (b.votes || 0) - (a.votes || 0))
+    .slice(0, 5)
+    .map((v) => ({
+      version: v.version,
+      rating: v.rating ? Math.round(v.rating * 10) / 10 : null,
+      votes: v.votes || 0,
+      url: v.tab_url,
+    }));
+}
+
+// Charts where the writer stopped writing out the words ("etc...", "repeat chorus").
+export function chartSkipsWords(lines) {
+  const skip = /\b(etc\.*|repeat( the)? (verse|chorus|x?\d)|same as (verse|chorus|before|above))\b/i;
+  return lines.filter((l) => skip.test(l.replace(/\[[^\]]*\]/g, ''))).length >= 1;
 }
 
 // Splits a UG "Tabs" page into the app's tab sections, using its [Intro] / [Riff 1] headers.
@@ -713,7 +752,26 @@ export default {
         const target = new URL(url.searchParams.get('url') || '');
         if (target.protocol !== 'https:') throw new Error('Bad link');
         if (target.hostname === 'tabs.ultimate-guitar.com') {
-          return json(parseUgSong(await fetchPage(target.href, ctx), target.href), 200, origin);
+          const chart = parseUgSong(await fetchPage(target.href, ctx), target.href);
+          // UG's own "versions" list is often just the paid official one, so also look up the
+          // song's other free versions in search to offer as replacements.
+          if (chart.alternatives.length < 3) {
+            try {
+              const type = chart.lines.length ? 'Chords' : 'Tabs';
+              const same = (a, b) => normalize(a).join(' ') === normalize(b).join(' ');
+              const found = parseUgSearch(
+                await fetchPage(`https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(chart.title)}`, ctx)
+              ).filter((r) => r.type === type && r.url !== target.href && same(r.title, chart.title) && same(r.artist, chart.artist));
+              const seen = new Set(chart.alternatives.map((a) => a.url));
+              found.forEach((r) => {
+                if (!seen.has(r.url) && chart.alternatives.length < 5) {
+                  seen.add(r.url);
+                  chart.alternatives.push({ version: r.version, rating: r.rating, votes: r.votes, url: r.url });
+                }
+              });
+            } catch (err) { /* alternatives are a bonus; the chart itself already loaded */ }
+          }
+          return json(chart, 200, origin);
         }
         if (target.hostname === 'acordes.lacuerda.net') {
           return json(parseLacuerdaSong(await fetchPage(target.href, ctx), target.href), 200, origin);

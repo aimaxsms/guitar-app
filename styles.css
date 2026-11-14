@@ -1947,3 +1947,145 @@ a.song-finder-result {
   padding: 10px 16px;
   font-size: 0.85rem;
 }
+
+
+/* --- Strumming patterns --- */
+.song-strums,
+.song-notice {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: 14px;
+}
+
+.song-strums {
+  background: #132447;
+  border: 1px solid #263f72;
+}
+
+.song-strums.hidden-in-tab,
+.song-notice.hidden-in-tab {
+  display: none !important;
+}
+
+.song-strums-head {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b4c1d9;
+  margin-bottom: 6px;
+}
+
+.song-strum-part + .song-strum-part {
+  margin-top: 10px;
+}
+
+.song-strum-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #edeae3;
+  margin-bottom: 4px;
+}
+
+.song-strum-bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.song-strum-bar {
+  display: flex;
+  padding: 4px 6px;
+  background: #172a52;
+  border: 1px solid #263f72;
+  border-radius: 8px;
+}
+
+.song-strum-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 17px;
+}
+
+.song-strum-slot.on-beat {
+  border-left: 1px solid #263f72;
+}
+
+.song-strum-slot.on-beat:first-child {
+  border-left: none;
+}
+
+.song-strum-arrow {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #f7f5f0;
+}
+
+.song-strum-arrow.accent,
+.song-strum-legend .accent {
+  color: #ffd98a;
+  text-shadow: 0 0 6px rgba(255, 217, 138, 0.5);
+}
+
+.song-strum-arrow.muted,
+.song-strum-legend .muted {
+  color: #f87171;
+  font-size: 0.85rem;
+}
+
+.song-strum-arrow.rest,
+.song-strum-legend .rest {
+  color: #3d5a94;
+}
+
+.song-strum-count {
+  font-size: 0.65rem;
+  color: #8394b3;
+}
+
+.song-strum-slot.on-beat .song-strum-count {
+  color: #edeae3;
+  font-weight: 700;
+}
+
+.song-strum-legend {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: #9fb0cc;
+}
+
+/* --- "this chart skips words" notice --- */
+.song-notice {
+  background: #2a2412;
+  border: 1px solid #8a6d1f;
+}
+
+.song-notice p {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: #ffe6a8;
+}
+
+.song-notice-alts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.song-notice-btn {
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  color: #0e1b36;
+  background: #ffd98a;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.song-strum-arrow,
+.song-strum-legend {
+  font-variant-emoji: text;
+  font-family: "Segoe UI Symbol", "Apple Symbols", system-ui, sans-serif;
+}

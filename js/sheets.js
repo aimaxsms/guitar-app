@@ -469,9 +469,105 @@ function renderChordBar(song) {
   setChordBarPinned(isChordBarPinned());
 }
 
+// --- Strumming patterns (from Ultimate Guitar) and "this chart skips words" notice ---
+const elSongStrums = document.getElementById('songStrums');
+const elSongNotice = document.getElementById('songNotice');
+
+const STRUM_SYMBOL = {
+  1: { s: '↓', cls: '' },
+  101: { s: '↑', cls: '' },
+  2: { s: '✕', cls: 'muted' },
+  102: { s: '✕', cls: 'muted' },
+  3: { s: '↓', cls: 'accent' },
+  103: { s: '↑', cls: 'accent' },
+};
+const COUNT_LABELS = { 1: [''], 2: ['', '&'], 3: ['', '&', 'a'], 4: ['', 'e', '&', 'a'], 6: ['', '', '&', '', 'a', ''] };
+
+function renderStrums(song) {
+  elSongStrums.innerHTML = '';
+  const strums = song.strums || [];
+  if (!strums.length) {
+    elSongStrums.style.display = 'none';
+    return;
+  }
+  elSongStrums.style.display = '';
+  const head = document.createElement('div');
+  head.className = 'song-strums-head';
+  head.textContent = 'Strumming pattern';
+  elSongStrums.appendChild(head);
+
+  strums.forEach((st) => {
+    const perBeat = Math.max(1, Math.round((st.den / 4) * (st.triplet ? 1.5 : 1)));
+    const labels = COUNT_LABELS[perBeat] || Array(perBeat).fill('');
+    const part = document.createElement('div');
+    part.className = 'song-strum-part';
+    const title = document.createElement('div');
+    title.className = 'song-strum-title';
+    title.textContent = [st.part || 'Whole song', st.bpm ? `${st.bpm} BPM` : '', st.triplet ? 'triplet feel' : '']
+      .filter(Boolean)
+      .join(' · ');
+    part.appendChild(title);
+
+    const bars = document.createElement('div');
+    bars.className = 'song-strum-bars';
+    const perBar = perBeat * 4;
+    for (let b = 0; b * perBar < st.codes.length; b++) {
+      const bar = document.createElement('div');
+      bar.className = 'song-strum-bar';
+      st.codes.slice(b * perBar, (b + 1) * perBar).forEach((code, i) => {
+        const sym = STRUM_SYMBOL[code] || { s: '', cls: 'rest' };
+        const slot = document.createElement('div');
+        slot.className = 'song-strum-slot' + (i % perBeat === 0 ? ' on-beat' : '');
+        slot.innerHTML = `<span class="song-strum-arrow ${sym.cls}">${sym.s || '·'}</span><span class="song-strum-count">${
+          i % perBeat === 0 ? Math.floor(i / perBeat) + 1 : labels[i % perBeat]
+        }</span>`;
+        bar.appendChild(slot);
+      });
+      bars.appendChild(bar);
+    }
+    part.appendChild(bars);
+    elSongStrums.appendChild(part);
+  });
+
+  const legend = document.createElement('div');
+  legend.className = 'song-strum-legend';
+  legend.innerHTML = '↓ down · ↑ up · <span class="muted">✕</span> muted chuck · <span class="accent">↓</span> accent · <span class="rest">·</span> skip (keep your hand moving)';
+  elSongStrums.appendChild(legend);
+}
+
+function renderNotice(song) {
+  elSongNotice.innerHTML = '';
+  const alts = song.alternatives || [];
+  if (!song.abbreviated) {
+    elSongNotice.style.display = 'none';
+    return;
+  }
+  elSongNotice.style.display = '';
+  const text = document.createElement('p');
+  text.textContent = alts.length
+    ? 'This version skips some of the words (the writer used "etc…" or "repeat"). Load a fuller version:'
+    : 'This version skips some of the words (the writer used "etc…" or "repeat"). Try another result in the search.';
+  elSongNotice.appendChild(text);
+  const row = document.createElement('div');
+  row.className = 'song-notice-alts';
+  alts.forEach((alt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'song-notice-btn';
+    btn.textContent = `Version ${alt.version}${alt.rating ? ` · ★ ${alt.rating}` : ''}${alt.votes ? ` · ${alt.votes.toLocaleString()} votes` : ''}`;
+    btn.addEventListener('click', () => {
+      if (window.songFinderLoadChart) window.songFinderLoadChart({ title: song.title, artist: song.artist, url: alt.url });
+    });
+    row.appendChild(btn);
+  });
+  elSongNotice.appendChild(row);
+}
+
 function renderSong(song) {
   renderMeta(song);
   renderChordBar(song);
+  renderNotice(song);
+  renderStrums(song);
   renderSheet(song);
   renderTabs(song);
   elTabViewBtn.disabled = !song.tabs || !song.tabs.length;
@@ -481,6 +577,8 @@ function setViewMode(mode) {
   viewMode = mode;
   elSheetContent.style.display = mode === 'lyrics' ? '' : 'none';
   elSongChordBar.classList.toggle('hidden-in-tab', mode !== 'lyrics');
+  elSongStrums.classList.toggle('hidden-in-tab', mode !== 'lyrics');
+  elSongNotice.classList.toggle('hidden-in-tab', mode !== 'lyrics');
   elTabContent.style.display = mode === 'tab' ? '' : 'none';
   elLyricsViewBtn.classList.toggle('active', mode === 'lyrics');
   elTabViewBtn.classList.toggle('active', mode === 'tab');
@@ -811,6 +909,9 @@ refreshSheetSongOptions('built-0');
         source: chart.source,
         sourceUrl: chart.sourceUrl,
         track: chart.track || '',
+        strums: chart.strums || [],
+        abbreviated: !!chart.abbreviated,
+        alternatives: chart.alternatives || [],
       });
       const isTab = !(chart.lines && chart.lines.length) && saved.tabs.length;
       setStatus(`Saved "${saved.title}"${isTab ? ' (tab)' : ''} to My Songs.`);
@@ -828,6 +929,8 @@ refreshSheetSongOptions('built-0');
   }
 
   searchBtn.addEventListener('click', runSearch);
+  // Lets the "load a fuller version" buttons on a saved song reuse the same loader.
+  window.songFinderLoadChart = loadChart;
 
   // --- Voice search: say the song, it fills the box and searches ---
   // Uses the browser's speech recognition (Safari sends the audio to Apple, Chrome to Google).
