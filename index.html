@@ -270,6 +270,30 @@
       </div>
 
       <div id="liveChordSaveResult" class="songid-result"></div>
+
+      <div class="analyzer">
+        <h2 class="theory-subheading">Analyze a Recording (AI)</h2>
+        <p class="theory-intro">
+          Pick an audio file, or record yourself, and an AI note detector works out the chords
+          bar by bar, the key, the tempo, the strumming and tab for single-note riffs, then saves it
+          to My Songs. It all runs on this device and nothing is uploaded. Works best with a clear
+          recording of one guitar; full band mixes are much harder.
+        </p>
+        <div class="btn-row">
+          <label class="start-btn analyzer-file-btn">
+            📁 Choose audio file
+            <input id="analyzerFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,video/mp4" hidden />
+          </label>
+          <button id="analyzerRecordBtn" type="button" class="start-btn secondary-btn">🎙 Record</button>
+        </div>
+        <label class="analyzer-option">
+          <input id="analyzerDetailed" type="checkbox" />
+          Detailed chords (7ths, sus, dim) instead of just major/minor
+        </label>
+        <div id="analyzerStatus" class="status analyzer-status"></div>
+        <div id="analyzerProgress" class="analyzer-progress" style="display:none;"><div></div></div>
+        <div id="analyzerResult" class="analyzer-result"></div>
+      </div>
     </section>
   </main>
 
@@ -292,6 +316,7 @@
   <script src="js/techniques.js"></script>
   <script src="js/music-theory.js"></script>
   <script src="js/livechords.js"></script>
+  <script src="js/song-analyzer.js"></script>
   <script src="js/nav.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

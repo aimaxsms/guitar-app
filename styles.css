@@ -2089,3 +2089,80 @@ a.song-finder-result {
   font-variant-emoji: text;
   font-family: "Segoe UI Symbol", "Apple Symbols", system-ui, sans-serif;
 }
+
+
+/* --- Analyze a recording --- */
+.analyzer {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  background: #132447;
+  border: 1px solid #2d4880;
+  border-radius: 14px;
+}
+
+.analyzer .theory-subheading {
+  margin: 0;
+}
+
+.analyzer-file-btn {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.analyzer-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #b4c1d9;
+}
+
+#analyzerRecordBtn.recording {
+  background: #f87171;
+  color: #0e1b36;
+  border-color: #f87171;
+  animation: mic-pulse 1.1s ease-in-out infinite;
+}
+
+.analyzer-status {
+  min-height: 1.2em;
+  text-align: center;
+}
+
+.analyzer-progress {
+  width: 100%;
+  height: 8px;
+  background: #0e1b36;
+  border: 1px solid #263f72;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.analyzer-progress > div {
+  width: 0;
+  height: 100%;
+  background: #edeae3;
+  transition: width 0.2s ease-out;
+}
+
+.analyzer-result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.analyzer-summary {
+  width: 100%;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  text-align: left;
+  color: #d6deec;
+}
