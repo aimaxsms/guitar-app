@@ -145,22 +145,88 @@ function deleteCurrentSong() {
   refreshSheetSongOptions();
 }
 
+function makeChordTag(name) {
+  const btn = document.createElement('button');
+  btn.className = 'chord-tag';
+  btn.textContent = name;
+  btn.addEventListener('click', () => openChordPanel(name));
+  return btn;
+}
+
+// Splits "[G]Today is gon[D]na be" into tokens of { chord, text } where text is at most one word
+// (plus a flag for whether a space follows), so lines can wrap between words and a chord that
+// lands mid-word ("af[D]ternoon") keeps the word together.
+function lineToTokens(line) {
+  const tokens = [];
+  let pendingChord = null;
+  parseSheetLine(line).forEach((seg) => {
+    if (seg.type === 'chord') {
+      if (pendingChord) tokens.push({ chord: pendingChord, text: '', space: true });
+      pendingChord = seg.value;
+      return;
+    }
+    const parts = seg.value.split(/(\s+)/);
+    parts.forEach((part) => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) {
+        if (pendingChord) { tokens.push({ chord: pendingChord, text: '', space: true }); pendingChord = null; }
+        else if (tokens.length) tokens[tokens.length - 1].space = true;
+        return;
+      }
+      tokens.push({ chord: pendingChord, text: part, space: false });
+      pendingChord = null;
+    });
+  });
+  if (pendingChord) tokens.push({ chord: pendingChord, text: '', space: true });
+  return tokens;
+}
+
 function renderSheet(song) {
   elSheetContent.innerHTML = '';
   song.lines.forEach((line) => {
     const lineEl = document.createElement('div');
-    lineEl.className = 'sheet-line';
-    parseSheetLine(line).forEach((segment) => {
-      if (segment.type === 'chord') {
-        const btn = document.createElement('button');
-        btn.className = 'chord-tag';
-        btn.textContent = segment.value;
-        btn.addEventListener('click', () => openChordPanel(segment.value));
-        lineEl.appendChild(btn);
-      } else {
-        lineEl.appendChild(document.createTextNode(segment.value));
-      }
-    });
+    const tokens = lineToTokens(line);
+    const hasChord = tokens.some((t) => t.chord);
+    const hasText = tokens.some((t) => t.text);
+
+    if (!hasChord) {
+      // Plain lyric or label line.
+      lineEl.className = 'sheet-line sheet-text-line';
+      lineEl.textContent = line.trim() ? line.trim() : '';
+      if (!line.trim()) lineEl.classList.add('sheet-blank');
+    } else if (!hasText) {
+      // Chords only (intro, instrumental): a tidy row instead of wide gaps.
+      lineEl.className = 'sheet-line sheet-chord-row';
+      tokens.forEach((t) => lineEl.appendChild(makeChordTag(t.chord)));
+    } else {
+      // Chords above the words.
+      lineEl.className = 'sheet-line sheet-lyric-line';
+      let group = null;
+      tokens.forEach((t, i) => {
+        if (!group) {
+          group = document.createElement('span');
+          group.className = 'sheet-word';
+        }
+        const chunk = document.createElement('span');
+        // Mid-word piece ("af" in af|ternoon): a faint dash fills any gap the chord above leaves.
+        const midWord = !t.space && i < tokens.length - 1 && t.text;
+        chunk.className = 'sheet-chunk' + (midWord ? ' mid-word' : '');
+        const top = document.createElement('span');
+        top.className = 'sheet-chunk-chord';
+        if (t.chord) top.appendChild(makeChordTag(t.chord));
+        const bottom = document.createElement('span');
+        bottom.className = 'sheet-chunk-text';
+        bottom.textContent = t.text || '\u00a0';
+        chunk.appendChild(top);
+        chunk.appendChild(bottom);
+        group.appendChild(chunk);
+        // A word ends at a space (or the end of the line); only then may the line wrap.
+        if (t.space || i === tokens.length - 1) {
+          lineEl.appendChild(group);
+          group = null;
+        }
+      });
+    }
     elSheetContent.appendChild(lineEl);
   });
 }

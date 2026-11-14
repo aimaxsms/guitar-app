@@ -2166,3 +2166,113 @@ a.song-finder-result {
   text-align: left;
   color: #d6deec;
 }
+
+
+/* --- Chord sheets: chords above the lyrics, wrapping between words --- */
+.sheet-content {
+  line-height: 1.5;
+}
+
+.sheet-line {
+  white-space: normal;
+}
+
+.sheet-text-line {
+  margin: 6px 0;
+  white-space: pre-wrap;
+}
+
+.sheet-blank {
+  height: 0.6em;
+}
+
+.sheet-chord-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.sheet-chord-row .chord-tag {
+  margin: 0;
+}
+
+.sheet-lyric-line {
+  margin: 4px 0 10px;
+  line-height: 1.3;
+}
+
+.sheet-word {
+  display: inline-flex;
+  align-items: flex-end;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.sheet-chunk {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sheet-chunk-chord {
+  min-height: 1.75em;
+  display: flex;
+  align-items: flex-end;
+  padding-right: 4px;
+}
+
+.sheet-chunk-chord .chord-tag {
+  margin: 0 0 3px;
+  padding: 1px 7px;
+  font-size: 0.8rem;
+}
+
+.sheet-chunk-text {
+  white-space: pre;
+  font-size: 1.02rem;
+}
+
+.sheet-chunk {
+  align-items: stretch;
+}
+
+.sheet-chunk.mid-word .sheet-chunk-text {
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet-chunk.mid-word .sheet-chunk-text::after {
+  content: '';
+  flex: 1;
+  min-width: 0;
+  margin: 0 2px 0.4em;
+  border-bottom: 1px dashed #4a6396;
+}
+
+/* Words line up on one baseline: each word is a flex item aligned to the bottom. */
+.sheet-lyric-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 0.32em;
+  row-gap: 6px;
+}
+
+.sheet-word {
+  margin-bottom: 0;
+}
+
+.sheet-chunk-chord {
+  height: 1.9em;
+  min-height: 0;
+  padding-right: 0;
+}
+
+.sheet-chunk-chord .chord-tag {
+  margin: 0 4px 3px 0;
+}
+
+.sheet-chunk.mid-word .sheet-chunk-text::after {
+  margin: 0 0 0.4em;
+}
