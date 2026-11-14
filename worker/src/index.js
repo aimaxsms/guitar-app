@@ -154,6 +154,7 @@ export function parseUgSong(html, url) {
     source: 'Ultimate Guitar',
     sourceUrl: url,
     strums: ugStrums(data.tab_view.strummings),
+    voicings: mergeVoicings(ugVoicings(data.tab_view.applicature), textVoicings(content.replace(/\[\/?(ch|tab)\]/g, ''))),
     alternatives: ugAlternatives(data.tab_view.versions, url, data.tab.type),
   };
   if (data.tab.type === 'Tabs') return { ...base, lines: [], tabs: ugTabSections(content) };
@@ -167,6 +168,56 @@ export function parseUgSong(html, url) {
     });
   const lines = inlineKeepingPreInlined(raw);
   return { ...base, lines, tabs: [], abbreviated: chartSkipsWords(lines) };
+}
+
+// Chord shapes the chart uses. UG lists each chord's shapes in tab_view.applicature (first one is
+// the shape shown with the chart), strings ordered high e -> low E, -1 = muted, with barres in
+// listCapos. Returned as the app's diagram format: low E -> high e, 'x' for muted.
+function ugVoicings(applicature) {
+  const out = {};
+  if (!applicature || typeof applicature !== 'object') return out;
+  Object.entries(applicature).forEach(([name, shapes]) => {
+    const v = Array.isArray(shapes) ? shapes[0] : null;
+    if (!v || !Array.isArray(v.frets) || v.frets.length !== 6) return;
+    const fingersHigh = Array.isArray(v.fingers) ? v.fingers.slice() : new Array(6).fill(0);
+    (v.listCapos || []).forEach((c) => {
+      for (let st = c.startString; st <= c.lastString; st++) {
+        if (v.frets[st] === c.fret && !fingersHigh[st]) fingersHigh[st] = c.finger;
+      }
+    });
+    const frets = v.frets.slice().reverse().map((f) => (f < 0 ? 'x' : f));
+    const fingers = fingersHigh.slice().reverse().map((f, i) => (frets[i] === 'x' ? 'x' : f || 0));
+    out[name] = { frets, fingers };
+  });
+  return out;
+}
+
+// Shapes written into the chart text, e.g. "A7sus4  x02033" or "Bm: x-2-4-4-3-2". These are what
+// the writer explicitly asked for, so they win over anything else.
+export function textVoicings(text) {
+  const out = {};
+  const re = /(?:^|\s)([A-G][#b]?[a-zA-Z0-9#+°ø()]*(?:\/[A-G][#b]?)?)\s*[:=]?\s+((?:[xX0-9]{6})|(?:[xX0-9]{1,2}[-.][xX0-9]{1,2}[-.][xX0-9]{1,2}[-.][xX0-9]{1,2}[-.][xX0-9]{1,2}[-.][xX0-9]{1,2}))(?=[\s,.;)]|$)/gm;
+  let m;
+  while ((m = re.exec(text))) {
+    const raw = m[2];
+    const parts = /[-.]/.test(raw) ? raw.split(/[-.]/) : raw.split('');
+    if (parts.length !== 6) continue;
+    const frets = parts.map((p) => (/^x$/i.test(p) ? 'x' : Number(p)));
+    const played = frets.filter((f) => f !== 'x');
+    if (played.length < 3 || played.some((f) => f > 22)) continue;
+    out[m[1]] = { frets, fingers: null, fromText: true };
+  }
+  return out;
+}
+
+// Text shapes win; when one matches UG's stored shape, keep UG's finger numbers for it.
+function mergeVoicings(stored, written) {
+  const out = { ...stored };
+  Object.entries(written).forEach(([name, v]) => {
+    const same = stored[name] && stored[name].frets.join() === v.frets.join();
+    out[name] = same ? { ...stored[name], fromText: true } : v;
+  });
+  return out;
 }
 
 // UG strumming patterns: one code per rhythmic slot. Decoded from real songs (Riptide's chorus
@@ -301,6 +352,7 @@ export function parseLacuerdaSong(html, url) {
     source: 'LaCuerda',
     sourceUrl: url,
     pageTitle: titleM ? decodeEntities(titleM[1]).trim() : undefined,
+    voicings: textVoicings(decodeEntities(body[1].replace(/<[^>]+>/g, ''))),
     lines: inlineKeepingPreInlined(raw),
   };
 }

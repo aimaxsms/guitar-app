@@ -2297,3 +2297,22 @@ a.song-finder-result {
   border: none;
   border-radius: 8px;
 }
+
+
+/* --- Chord shapes taken from the chart itself --- */
+.song-chord-card.chart-shape,
+.diagram-card.chart-shape {
+  border-color: #ffd98a;
+}
+
+.song-chord-card-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ffd98a;
+  letter-spacing: 0.02em;
+}
+
+.diagram-card.chart-shape .diagram-label {
+  color: #ffd98a;
+  font-weight: 700;
+}

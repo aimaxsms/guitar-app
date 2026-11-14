@@ -31,7 +31,7 @@ function buildChordDiagramSvg(position, labelMode = 'finger') {
     const x = DIAGRAM_LEFT + s * STRING_GAP;
     if (fret === 'x') {
       svg += `<text x="${x}" y="${DIAGRAM_TOP - 10}" font-size="11" fill="#9ca3af" text-anchor="middle">x</text>`;
-    } else if (fret === startFret && startFret === 0) {
+    } else if (fret === 0) {
       if (labelMode === 'note') {
         const openNote = fretToNoteName(s, 0);
         svg += `<circle cx="${x}" cy="${DIAGRAM_TOP - 14}" r="6" fill="none" stroke="#9ca3af" stroke-width="1.2" />`;

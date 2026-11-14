@@ -556,6 +556,17 @@ function songChordList(song) {
   return chords;
 }
 
+// The shape the chart itself uses for a chord, as a diagram position, or null.
+function chartVoicing(song, chordName) {
+  if (!song || !song.voicings || capoViewFor(song) !== (Number(song.capo) || 0)) return null;
+  const v = song.voicings[chordName];
+  if (!v || !Array.isArray(v.frets) || v.frets.length !== 6) return null;
+  const fretted = v.frets.filter((f) => typeof f === 'number' && f > 0);
+  const max = fretted.length ? Math.max(...fretted) : 0;
+  const startFret = max <= 3 ? 0 : Math.min(...fretted);
+  return { startFret, frets: v.frets, fingers: Array.isArray(v.fingers) ? v.fingers : null, fromText: !!v.fromText };
+}
+
 function easiestChordSvg(chordLabel) {
   // Slash chords (D/F#) and unusual names: fall back to the plain chord before the slash.
   const parsed = parseChordName(chordLabel) || parseChordName(chordLabel.split('/')[0]);
@@ -590,12 +601,20 @@ function renderChordBar(song) {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'song-chord-card';
-    const svg = easiestChordSvg(name);
+    const own = chartVoicing(song, name);
+    const svg = own ? buildChordDiagramSvg(own) : easiestChordSvg(name);
+    if (own) card.classList.add('chart-shape');
     if (svg) card.innerHTML = svg;
     const label = document.createElement('span');
     label.className = 'song-chord-card-name';
     label.textContent = name;
     card.appendChild(label);
+    if (own) {
+      const tag = document.createElement('span');
+      tag.className = 'song-chord-card-tag';
+      tag.textContent = 'as in chart';
+      card.appendChild(tag);
+    }
     card.addEventListener('click', () => openChordPanel(name));
     row.appendChild(card);
   });
@@ -725,6 +744,15 @@ function setViewMode(mode) {
 function openChordPanel(chordLabel) {
   elChordPanelTitle.textContent = chordLabel;
   renderChordDiagrams(elChordPanelDiagrams, chordLabel);
+  const own = chartVoicing(getSongByKey(currentSongKey), chordLabel);
+  if (own) {
+    const card = document.createElement('div');
+    card.className = 'diagram-card chart-shape';
+    card.innerHTML = `${buildChordDiagramSvg(own)}<div class="diagram-label">${own.fromText ? 'As written in this chart' : 'As used in this chart'}</div>`;
+    // If the generic list only had an error message, replace it.
+    if (elChordPanelDiagrams.querySelector('.chord-panel-error')) elChordPanelDiagrams.innerHTML = '';
+    elChordPanelDiagrams.prepend(card);
+  }
   elChordPanel.classList.add('open');
 }
 
@@ -1046,6 +1074,7 @@ refreshSheetSongOptions('built-0');
         sourceUrl: chart.sourceUrl,
         track: chart.track || '',
         strums: chart.strums || [],
+        voicings: chart.voicings || {},
         abbreviated: !!chart.abbreviated,
         alternatives: chart.alternatives || [],
       });
