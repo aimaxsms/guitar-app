@@ -2276,3 +2276,24 @@ a.song-finder-result {
 .sheet-chunk.mid-word .sheet-chunk-text::after {
   margin: 0 0 0.4em;
 }
+
+
+/* --- Capo selector --- */
+.capo-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #edeae3;
+}
+
+.capo-select {
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0e1b36;
+  background: #edeae3;
+  border: none;
+  border-radius: 8px;
+}

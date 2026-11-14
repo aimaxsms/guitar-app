@@ -102,15 +102,84 @@ function isPersonalKey(key) {
   return key.startsWith('my-');
 }
 
+// ---------- Capo view: show the chart for any capo position (or none) ----------
+// A chart's chords are shapes played with its original capo (song.capo). Viewing it with a
+// different capo moves every chord by the difference, so the song still sounds the same.
+const CAPO_VIEW_KEY = 'guitarApp_capoView';
+const SHEET_FLAT_TO_SHARP = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#', Cb: 'B', Fb: 'E' };
+
+function transposeChordName(chord, steps) {
+  if (!steps) return chord;
+  const move = (note) => {
+    const name = SHEET_FLAT_TO_SHARP[note] || note;
+    const i = NOTE_NAMES.indexOf(name);
+    return i < 0 ? note : NOTE_NAMES[(((i + steps) % 12) + 12) % 12];
+  };
+  const m = chord.match(/^([A-G][#b]?)(.*?)(?:\/([A-G][#b]?))?$/);
+  if (!m) return chord;
+  return move(m[1]) + m[2] + (m[3] ? '/' + move(m[3]) : '');
+}
+
+function getCapoViews() {
+  try { return JSON.parse(localStorage.getItem(CAPO_VIEW_KEY)) || {}; } catch (err) { return {}; }
+}
+function capoViewFor(song) {
+  const saved = getCapoViews()[currentSongKey];
+  return Number.isInteger(saved) ? saved : Number(song.capo) || 0;
+}
+function setCapoView(capo) {
+  const views = getCapoViews();
+  views[currentSongKey] = capo;
+  try { localStorage.setItem(CAPO_VIEW_KEY, JSON.stringify(views)); } catch (err) { /* not remembered */ }
+}
+// Chord as it should be shown for the chosen capo.
+function displayChord(song, chord) {
+  return transposeChordName(chord, (Number(song.capo) || 0) - capoViewFor(song));
+}
+
+function renderCapoControl(song) {
+  const original = Number(song.capo) || 0;
+  const view = capoViewFor(song);
+  const wrap = document.createElement('label');
+  wrap.className = 'capo-control';
+  const text = document.createElement('span');
+  text.textContent = 'Capo';
+  const select = document.createElement('select');
+  select.className = 'capo-select';
+  for (let c = 0; c <= 9; c++) {
+    const opt = document.createElement('option');
+    opt.value = String(c);
+    opt.textContent = (c === 0 ? 'No capo' : `Fret ${c}`) + (c === original ? ' (original)' : '');
+    select.appendChild(opt);
+  }
+  select.value = String(view);
+  select.addEventListener('change', () => {
+    setCapoView(Number(select.value));
+    renderSong(song);
+  });
+  wrap.appendChild(text);
+  wrap.appendChild(select);
+  return wrap;
+}
+
+function keyText(song) {
+  const key = song.key && song.key !== '?' ? song.key : null;
+  if (!key) return 'Key: ?';
+  const view = capoViewFor(song);
+  // song.key is the key the song sounds in; with a capo the shapes are lower by the capo amount.
+  return view ? `Key: ${key} (shapes in ${transposeChordName(key, -view)})` : `Key: ${key}`;
+}
+
 function renderMeta(song) {
-  const capoText = song.capo ? `Capo: Fret ${song.capo}` : 'No Capo';
-  const parts = [`Key: ${song.key}`, capoText, `Tuning: ${song.tuning}`];
+  const capoText = song.capo ? `Original capo: fret ${song.capo}` : 'Written without capo';
+  const parts = [keyText(song), capoText, `Tuning: ${song.tuning}`];
   if (song.strumPattern) parts.push(`Strum: ${song.strumPattern}`);
   if (song.artist) parts.unshift(song.artist);
   elSongMeta.innerHTML = '';
   const metaText = document.createElement('span');
   metaText.textContent = parts.join('  •  ');
   elSongMeta.appendChild(metaText);
+  elSongMeta.appendChild(renderCapoControl(song));
 
   if (isPersonalKey(currentSongKey)) {
     const renameBtn = document.createElement('button');
@@ -197,7 +266,7 @@ function renderSheet(song) {
     } else if (!hasText) {
       // Chords only (intro, instrumental): a tidy row instead of wide gaps.
       lineEl.className = 'sheet-line sheet-chord-row';
-      tokens.forEach((t) => lineEl.appendChild(makeChordTag(t.chord)));
+      tokens.forEach((t) => lineEl.appendChild(makeChordTag(displayChord(song, t.chord))));
     } else {
       // Chords above the words.
       lineEl.className = 'sheet-line sheet-lyric-line';
@@ -213,7 +282,7 @@ function renderSheet(song) {
         chunk.className = 'sheet-chunk' + (midWord ? ' mid-word' : '');
         const top = document.createElement('span');
         top.className = 'sheet-chunk-chord';
-        if (t.chord) top.appendChild(makeChordTag(t.chord));
+        if (t.chord) top.appendChild(makeChordTag(displayChord(song, t.chord)));
         const bottom = document.createElement('span');
         bottom.className = 'sheet-chunk-text';
         bottom.textContent = t.text || '\u00a0';
@@ -477,9 +546,10 @@ function songChordList(song) {
   const chords = [];
   song.lines.forEach((line) => {
     parseSheetLine(line).forEach((seg) => {
-      if (seg.type === 'chord' && !seen.has(seg.value)) {
-        seen.add(seg.value);
-        chords.push(seg.value);
+      const name = seg.type === 'chord' ? displayChord(song, seg.value) : null;
+      if (name && !seen.has(name)) {
+        seen.add(name);
+        chords.push(name);
       }
     });
   });
